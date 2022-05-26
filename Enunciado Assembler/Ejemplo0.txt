@@ -1,0 +1,8 @@
+DATA:
+variable1 2
+variable2 3
+CODE:
+MOV A,(variable1)
+JMP fin
+MOV A,(variable2)
+fin:

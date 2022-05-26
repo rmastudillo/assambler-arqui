@@ -1,0 +1,6 @@
+DATA:
+ letrac 'c'	// 99
+ string "ho la"	// ['h', 'o', ' ', 'l', 'a', 0] = [104, 111, 32, 108, 97, 0]
+CODE:
+ MOV A,(letrac)	// A = 99
+ SUB A,'a'	// A = A - 97 = 2

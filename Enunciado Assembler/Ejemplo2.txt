@@ -1,0 +1,10 @@
+DATA:
+ a		0
+ arreglo	10
+        	101b
+        	2h
+        	7d
+CODE:
+ MOV B,arreglo	// B = 1
+ INC B		// B = B + 1 = 2
+ MOV A,(B)	// A = Mem[B] = 5

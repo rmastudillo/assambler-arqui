@@ -1,0 +1,192 @@
+#!/usr/bin/python3.10
+
+from sys import argv
+from collections import namedtuple
+import re
+
+# Ctes.
+TOKENS_COMMENTS = ['//', ';']
+TOKENS_STRINGS = ['"', "'"]
+# Asignar las funciones si se agregan nuevos
+TOKENS_BASES = ['d', 'b', 'h']
+
+
+# Argumentos --> Archivo de entrada
+input_file = str(argv[1])
+# Instrucciones
+Instruction = namedtuple('Instruction',
+                         ('rom_dir', 'label', 'inst',
+                          'in_A', 'in_B'))
+
+# ----- Líneas de texto -----
+# Saca los comentarios
+def remove_comments(text: str) -> str:
+    for token in TOKENS_COMMENTS:
+        text = text.split(token, 1)[0]
+        
+    return text
+
+# Saco bordes
+def trim_line(text: str) -> str:
+    # Porque mágicamente es feliz si lo corro 2 veces
+    for _ in range(2):
+        # Sacamos lo saltos de línea
+        # Sacamos los tabs del extremo
+        # Sacamos los espacios de los extremos
+        for thingy in ("\n", "\t", ' '):
+            text = text.strip(thingy)
+
+    return text
+
+# Saco dobles espacios y \t
+def clear_mid_spaces(text: str) -> str:
+    text = text.replace("\t", ' ')
+    
+    double_space = '  '
+    
+    while double_space in text:
+        text = text.replace(double_space, ' ')
+    
+    return text
+
+# ----- Convertir bases numericas -----
+
+def dec2decimal(value: str = "0d") -> str:
+    if 'd' in value: # Porque por defecto es decimal
+        value = value[:-1]
+        
+    return value
+
+def bin2decimal(value: str = "0b") -> str:
+    value = value[:-1]
+    base = 2
+    
+    try:
+        value = int(value, base)
+    
+    except ValueError:
+        pass
+    
+    return value
+
+def hex2decimal(value: str = "0h") -> str:
+    # TODO: Problema del yo del futuro
+    value = value[:-1]
+    base = 16
+    
+    try:
+        value = int(value, base)
+    
+    except ValueError:
+        pass
+    
+    return value
+
+class Hola:
+    pass
+
+def process_bases(text: str) -> str:
+    ugly_stuff = \
+        re.findall("[0-9]{1,}[" + \
+        ''.join(TOKENS_BASES) + \
+        "]{1}", text)
+    
+    print(ugly_stuff)
+    
+    if not ugly_stuff:
+        return text
+    
+    else:
+        ugly_stuff = str(ugly_stuff[0])
+        
+    match ugly_stuff[-1]:
+        case 'd':
+            nice_stuff = dec2decimal(ugly_stuff)
+            
+        case 'b':
+            nice_stuff = bin2decimal(ugly_stuff)
+            
+        case 'h':
+            nice_stuff = hex2decimal(ugly_stuff)
+            
+        case _:
+            raise ValueError
+    
+    parts = text.split(ugly_stuff)
+    text = parts[0] + str(nice_stuff)
+    text += parts[1] if len(parts) > 1 else ''
+    
+    return text
+
+# ----- Cosas de strings -----
+# Caracteres ascii a nros.
+def char2int(char: str = 'A') -> int:
+    return ord(char)
+
+# Convierto todos los acaracteres a numerso
+# Es treméndamente ineficiente.
+# Tal vez después la arregle
+def process_string(text: str) -> str:
+    # Para cada token del array (', ")
+    for token in TOKENS_STRINGS:
+        # Reemplazar letras por números hasta que no queden letras.
+        while token in text:
+            string = text.split(token, 2)[1]
+            new_string = str()
+            
+            for char in string:
+                new_string += f"{char2int(char)}, "
+            
+            text = text.split(token, 2)[0] + new_string[:-2] + text.split(token, 2)[2]
+        
+    return text
+    
+
+# ----- Para debug -----
+def show_code(code: list) -> None:
+    for code_line in code:
+        print(code_line)
+
+# ----- Direcciones de memoria -----
+# Asigna direcciones de memoria a las instrucciones
+# instr -> (dir, instr)
+def assign_rom_dir(code: list) -> list:
+    instruction_counter = 0
+    organized_code = list()
+    
+    for instr in code:
+        organized_code.append((instruction_counter,
+                               instr))
+        
+        instruction_counter += 1
+    
+    return organized_code
+
+# ----- Cosas mágicas con tokens -----
+def split_token(text: str) -> list:
+    return list()
+
+
+with open(input_file, 'r') as file:    
+    # Proceso el archivo
+    # Proceso cada línea de la lista
+    
+    content = [trim_line(remove_comments(line))
+               for line 
+               in file.readlines()
+               if trim_line(remove_comments(line))]
+
+
+#content = assign_rom_dir(content)
+#content = process_arrays(content)
+
+for pos, line in enumerate(content):
+    line = process_string(line)
+    line = clear_mid_spaces(line)
+    line = process_bases(line)
+    content[pos] = line
+
+# ----- Para debug -----
+show_code(content)
+
+
