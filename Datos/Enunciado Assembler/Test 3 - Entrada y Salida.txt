@@ -1,0 +1,95 @@
+DATA:
+
+led  0
+sw   0
+dis  0
+btn  0
+sec  0
+msec 0
+usec 0
+lcd  0
+
+CODE:
+
+MOV A,0
+MOV B,7
+CALL reset_port_loop
+CALL std_io_btn_wait	// Output debe mostrar FFFFh
+
+MOV A,1
+MOV (dis),A
+MOV (led),A
+
+PUSH A
+CALL std_io_btn_wait	// Output debe mostrar 1 y 1
+POP A
+
+INC A
+MOV B,(1)
+MOV (0),A
+MOV (2),B
+
+PUSH A
+CALL std_io_btn_wait	// Output debe mostrar switches y 2
+POP A
+
+INC A
+MOV B,43537
+MOV (dis),B
+MOV (led),A
+
+PUSH A
+CALL std_io_btn_wait	// Output debe mostrar AA,11 y 3
+POP A
+
+INC A
+MOV (led),A
+MOV A,8
+MOV B,EFFh
+CALL reset_port_loop
+
+end:			// Output no debe mostrar FFFFh
+JMP end
+
+reset_port_loop:
+ PUSH B
+ CALL std_reg_swap
+ MOV A,FFFFh
+ MOV (B),A
+ CALL std_reg_swap
+ POP B
+ CMP A,B
+ JEQ reset_port_loop_end
+ INC A
+ JMP reset_port_loop
+ reset_port_loop_end:
+RET
+
+/////////////////Libreria std/////////////////////////////////////////////
+									//
+std_reg_swap:			// * en A, * en B			//
+  XOR A,B			// Diferencia en A			//
+  XOR B,A			// A en B				//
+  XOR A,B			// B en A				//
+RET				// Retorna B en A y A en B		//
+									//
+/////////////////Libreria std_io//////////////////////////////////////////
+									//
+std_io_btn_wait:		// * en A, * en B			//
+ PUSH B				// Guarda B				//
+ MOV A,(3)			// Estado actual			//
+ std_io_btn_wait_press_lp:						//
+  MOV B,(3)			// Nuevo estado				//
+  CMP A,B			// Si ==				//
+  JEQ std_io_btn_wait_press_lp	// Continuar				//
+ XOR B,A			// Bits cambiados			//
+ std_io_btn_wait_release_lp:						//
+  MOV A,(3)			// Nuevo estado				//
+  AND A,B			// Bits aún cambiados			//
+  CMP A,0			// SI != 0				//
+  JNE std_io_btn_wait_release_lp// Continuar				//
+ MOV A,B			// Bits cambiados a A			//
+ POP B				// Recupera B				//
+RET				// Retorna Bit(s) en A			//
+									//
+//////////////////////////////////////////////////////////////////////////
