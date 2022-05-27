@@ -1,14 +1,28 @@
 from sys import argv
+from iic2343 import Basys3
+rom_programmer = Basys3()
 
 ARGUMENTO = str(argv[1])
+
+
+def leyendo_datos(linea):
+    linea
+    pass
+
+
+def leyendo_subrutina(linea):
+    pass
+
+
+def leyendo_codigo(linea):
+    pass
+
+
+def leyendo_instruccion(instr, a=None, b=None):
+    pass
+
+
 contenido = []
-with open(ARGUMENTO, "r") as file:
+with open(ARGUMENTO, "r", newline="") as file:
     for linea in file:
-        if "//" in linea:
-            linea = linea.split("//")[0]
-        linea = linea.replace("\t", " ")
-        linea = linea.strip("\n").strip(" ")
-        if linea and (linea[0:2] != '//'):
-            contenido.append(linea)
-for linea in contenido:
-    uf 
+        print(linea)

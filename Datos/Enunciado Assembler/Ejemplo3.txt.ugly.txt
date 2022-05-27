@@ -1,0 +1,6 @@
+DATA:
+letrac 'c'
+string "ho la"
+CODE:
+MOV A,(letrac)
+SUB A,'a'
