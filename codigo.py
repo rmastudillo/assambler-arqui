@@ -395,8 +395,25 @@ class Registro:
         return self.letra
 
 
+class Assembler:
+    def __init__(self, instruccion, representacion):
+        self.instr = instruccion
+        self.repr = representacion
+        self.direc_j = defaultdict(int)
+
+    def __repr__(self):
+        if self.repr:
+            texto = ''
+            for r in self.repr:
+                texto += r+"\n"
+            return texto
+        else:
+            return "Class Assembler"
+
+
 # Guardo la cosa fea en un documento por si acaso
 direccion_jump = defaultdict(int)
+assembler = Assembler([], [])
 with open(input_file, 'r') as file:
     content = [trim_line(remove_comments(line))
                for line
@@ -438,21 +455,21 @@ with open(input_file, 'r') as file:
                     #line[1] = _l
             else:
                 if ":" in line[0]:
-                    direccion_jump[line[0][:-1]] = index
-                    pass
-            print(line)
+                    assembler.direc_j[line[0][:-1]] = index
+            linea = ''
+            if len(line) > 1:
+                linea = linea + str(line[0]) + " "
+                _l = ', '.join(map(str, line[1]))
+                linea = linea+_l
+            else:
+                linea += str(line[0])
+            assembler.repr.append(linea)
+            assembler.instr.append(line)
+
             #ugly_file.write(str(line) + '\n')
-        print(direccion_jump)
-
-with open(f"{input_file}.nicer.txt", 'w') as nicer_file:
-    for line in data:
-        nicer_file.write(str(line) + '\n')
-
-    nicer_file.write('\n')
-
-    for line in machiny_stuff:
-        nicer_file.write(str(line) + '\n')
-
+print(assembler.direc_j)
+print(assembler.instr[9][1][1].value)
+print(assembler)
 # ----- Para debug -----
 # show_code(content)
 # print()
