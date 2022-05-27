@@ -6,8 +6,8 @@ DATA:
  //resultado_antiguo 0
 
 CODE:
- MOV A,2
- MOV B,0
+ MOV A,(mul_uno) 
+ MOV B,(mul_dos)
  JMP main
  // for(mul_dos>=0//mul_dos--){
  // res_antiguo = resultado//
@@ -18,23 +18,17 @@ CODE:
 
 main:
  MOV A,(mul_dos)
- CMP A,0
+ CMP B,1
  JEQ done
 while:
- MOV A,(resultado)
  //MOV (resultado_antiguo),A
-
  ADD A,(mul_uno)
 if:// revisar overflow
 //si es overflow, será valor maximo (2**16)-1
 endif:
 //fin overlow
- MOV (resultado),A
- MOV A,(mul_dos)
- SUB A,1
- MOV (mul_dos),A
-
- CMP A,0
+ SUB B,1
+ CMP B,0
  JNE while
 
 done:

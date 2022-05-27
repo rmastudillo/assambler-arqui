@@ -1,0 +1,15 @@
+DATA:
+mul_uno 3
+mul_dos 2
+
+CODE:
+MOV A,(mul_uno)
+MOV B,(mul_dos)
+
+Mult:
+Sub B,1
+CMP B,0
+JME End:
+ADD A, A
+JMP Mult
+End:

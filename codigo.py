@@ -1,5 +1,6 @@
 #!/usr/bin/python3.10
 
+from sqlite3 import register_adapter
 from sys import argv
 from collections import defaultdict
 import re
@@ -308,7 +309,7 @@ for pos, line in enumerate(machiny_stuff):
 
             for pos_2, random_suff in enumerate(line[1]):
                 line[1][pos_2] = trim_line(random_suff).replace(' ', '')
-    #'rom_dir', 'label', 'inst', 'in_A', 'in_B'
+    # 'rom_dir', 'label', 'inst', 'in_A', 'in_B'
     machiny_stuff[pos] = line
 
 machiny_stuff = assign_rom_dir(machiny_stuff, len(data))
@@ -395,11 +396,43 @@ class Registro:
         return self.letra
 
 
+class Subrutina:
+    def __init__(self, valor):
+        self.value = valor
+
+    def __repr__(self):
+        return self.valor
+
+
 class Assembler:
     def __init__(self, instruccion, representacion):
         self.instr = instruccion
         self.repr = representacion
         self.direc_j = defaultdict(int)
+        self.registro_a = Registro
+        self.registro_b = Registro
+
+    def cambiar_reg(self, reg, value):
+        if reg.letra == "A":
+            self.registro_a.value = value
+            if type(value) == Registro:
+                self.registro_a.value = value.value
+        else:
+            self.registro_b.value = value
+            if type(value) == Registro:
+                self.registro_b.value = value.value
+
+    def add_reg(self, reg, value):
+        if type(value) == Literal:
+            if reg.letra == "A":
+                self.registro_a += value.valor
+            else:
+                self.registro_b += value.valor
+        if type(value) == Direccion:
+            print("AAAAA")
+
+    def cambiar_dir(self, direccion_jump, dir, registro):
+        direccion_jump[dir] = registro.value
 
     def __repr__(self):
         if self.repr:
@@ -419,60 +452,147 @@ with open(input_file, 'r') as file:
                for line
                in file.readlines()
                if trim_line(remove_comments(line))]
+    inicial = content[:]
+    for index, line in enumerate(content, start=0):
+        line = line.split(" ")
+        if len(line) > 1:
+            line[1] = line[1].split(",")
+            if len(line[1]) > 1:
+                _l = []
+                for l in line[1]:
+                    if ("(" and ")") in l:
+                        l = Direccion(l)
+                        print(l.value)
+                        _l.append(l)
+                        # Acá tengo que ver que hacer con las direcciones
 
-    with open(f"{input_file}.ugly.txt", 'w') as ugly_file:
-        inicial = content[:]
-        for index, line in enumerate(content, start=0):
-            line = line.split(" ")
-            if len(line) > 1:
-                line[1] = line[1].split(",")
-                if len(line[1]) > 1:
-                    _l = []
-                    for l in line[1]:
-                        if ("(" and ")") in l:
-                            l = Direccion(l)
-                            _l.append(l)
-                            # Acá tengo que ver que hacer con las direcciones
+                    elif l.isnumeric():
+                        l = Literal(l)
+                        _l.append(l)
+                        # Acá van los literales
 
-                        elif l.isnumeric():
-                            l = Literal(l)
-                            _l.append(l)
-                            # Acá van los literales
+                    elif l.isascii():
+                        if l == "A":
+                            reg = Registro(0, "A")
+                            assembler.registro_a = reg
+                            _l.append(reg)
+                            pass
+                            # print("registro A")
+                        elif l == "B":
+                            reg = Registro(0, "B")
+                            _l.append(reg)
+                            assembler.registro_b = reg
+                    else:
+                        _l.append(l)
+                line[1] = _l
+                # print("Registro B")
+                # line[1] = _l
+        else:
+            if ":" in line[0]:
+                assembler.direc_j[line[0][:-1]] = index
+        linea = ''
+        if len(line) > 1:
+            linea = linea + str(line[0]) + " "
+            _l = ', '.join(map(str, line[1]))
+            linea = linea+_l
+        else:
+            linea += str(line[0])
+        assembler.repr.append(linea)
+        assembler.instr.append(line)
 
-                        elif l.isascii():
-                            if l == "A":
-                                reg = Registro(None, "A")
-                                _l.append(reg)
-                                pass
-                                #print("registro A")
-                            elif l == "B":
-                                reg = Registro(None, "B")
-                                _l.append(reg)
-                        else:
-                            _l.append(l)
-                    line[1] = _l
-                    #print("Registro B")
-                    #line[1] = _l
-            else:
-                if ":" in line[0]:
-                    assembler.direc_j[line[0][:-1]] = index
-            linea = ''
-            if len(line) > 1:
-                linea = linea + str(line[0]) + " "
-                _l = ', '.join(map(str, line[1]))
-                linea = linea+_l
-            else:
-                linea += str(line[0])
-            assembler.repr.append(linea)
-            assembler.instr.append(line)
-
-            #ugly_file.write(str(line) + '\n')
+        # ugly_file.write(str(line) + '\n')
 print(assembler.direc_j)
 print(assembler.instr[9][1][1].value)
-print(assembler)
+assembler.instr.append("FIN")
+print(assembler.instr)
 # ----- Para debug -----
 # show_code(content)
 # print()
 # show_code(data)
 # print()
 # show_code(machiny_stuff)
+"""
+Corro el assambler
+"""
+N = 100
+i = 0
+inst = 0
+# Aca estoy asumiendo que solo serán int, para arrays tengo que hacer otrea cosa
+variables = defaultdict(int)
+while i < N:
+    i += 1
+    if assembler.instr[inst][0] == "F":
+        break
+
+    if assembler.instr[inst][0] == "DATA:":
+        while assembler.instr[inst][0] != "CODE:":
+            inst += 1
+            if len(assembler.instr[inst]) > 1:
+                variables[assembler.instr[inst][0]] = int(
+                    assembler.instr[inst][1][0])
+        inst += 1
+    """
+    Comienza el codigo
+    """
+
+    if assembler.instr[inst][0] == "MOV":
+        if type(assembler.instr[inst][1][0]) == Registro:
+            if type(assembler.instr[inst][1][1]) == Literal:
+
+                assembler.cambiar_reg(
+                    assembler.instr[inst][1][0], assembler.instr[inst][1][1].value)
+            elif type(assembler.instr[inst][1][1]) == Direccion:
+                valor = variables[assembler.instr[inst][1]
+                                  [1].value.replace('(', '').replace(')', '')]
+                assembler.cambiar_reg(
+                    assembler.instr[inst][1][0], valor)
+                print(valor)
+            elif type(assembler.instr[inst][1][1]) == Registro:
+                assembler.cambiar_reg(
+                    assembler.instr[inst][1][0].letra, assembler.instr[inst][1][1])
+
+        elif type(assembler.instr[inst][1][0]) == Direccion:
+            if type(assembler.instr[inst][1][1]) == Registro:
+                if assembler.instr[inst][1][1].letra == "A":
+                    _d = assembler.instr[inst][1][0].value.replace(
+                        '(', '').replace(')', '')
+                    assembler.cambiar_dir(
+                        variables, _d, assembler.registro_a)
+                else:
+                    assembler.cambiar_dir(
+                        variables, _d, assembler.registro_b)
+    if assembler.instr[inst][0] == "ADD":
+        if type(assembler.instr[inst][1][0]) == Registro:
+            if type(assembler.instr[inst][1][1]) == Literal:
+                assembler.cambiar_reg(
+                    assembler.instr[inst][1][0], assembler.instr[inst][1][1].value)
+            elif type(assembler.instr[inst][1][1]) == Direccion:
+                valor = variables[assembler.instr[inst][1]
+                                  [1].value.replace('(', '').replace(')', '')]
+                assembler.cambiar_reg(
+                    assembler.instr[inst][1][0], valor)
+                print(valor)
+            elif type(assembler.instr[inst][1][1]) == Registro:
+                assembler.cambiar_reg(
+                    assembler.instr[inst][1][0].letra, assembler.instr[inst][1][1])
+
+        elif type(assembler.instr[inst][1][0]) == Direccion:
+            if type(assembler.instr[inst][1][1]) == Registro:
+                if assembler.instr[inst][1][1].letra == "A":
+                    _d = assembler.instr[inst][1][0].value.replace(
+                        '(', '').replace(')', '')
+                    assembler.cambiar_dir(
+                        variables, _d, assembler.registro_a)
+                else:
+                    assembler.cambiar_dir(
+                        variables, _d, assembler.registro_b)
+    elif assembler.instr[inst][0] == "JMP":
+        assembler.instr[inst][1]
+        inst = assembler.direc_j[assembler.instr[inst][1][0]]
+    # elif assembler.instr[inst][0] == "CMP":
+    #    print(assembler.instr[inst][1][0].value,
+    #          assembler.instr[inst][1][1].value)
+    # print(assembler.repr[inst])
+    inst += 1
+print(assembler.registro_a.value)
+print(variables)
