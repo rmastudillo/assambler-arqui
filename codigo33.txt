@@ -1,0 +1,25 @@
+DATA:
+
+ mul_uno 2
+ mul_dos 3
+
+
+CODE:
+ MOV A,0
+ MOV B,0
+main:
+ MOV A,(mul_dos)
+ CMP A,0
+ JEQ end
+while:
+ MOV A,B
+ ADD A,(mul_uno)
+ MOV B,A
+ MOV A,(mul_dos)
+ SUB A,1
+ MOV (mul_dos),A
+ CMP A,0
+ JNE while
+
+end:
+

@@ -425,11 +425,21 @@ class Assembler:
     def add_reg(self, reg, value):
         if type(value) == Literal:
             if reg.letra == "A":
-                self.registro_a += value.valor
+                self.registro_a.value += value.valor
             else:
-                self.registro_b += value.valor
+                self.registro_b.value += value.valor
         if type(value) == Direccion:
             print("AAAAA")
+        if type(value) == int:
+            if reg.letra == "A":
+                self.registro_a.value += value
+            else:
+                self.registro_b.vlaue += value
+        else:
+            if reg.letra == "A":
+                self.registro_a.value += value.value
+            else:
+                self.registro_b.value += value.value
 
     def cambiar_dir(self, direccion_jump, dir, registro):
         direccion_jump[dir] = registro.value
@@ -462,7 +472,6 @@ with open(input_file, 'r') as file:
                 for l in line[1]:
                     if ("(" and ")") in l:
                         l = Direccion(l)
-                        print(l.value)
                         _l.append(l)
                         # Acá tengo que ver que hacer con las direcciones
 
@@ -501,10 +510,10 @@ with open(input_file, 'r') as file:
         assembler.instr.append(line)
 
         # ugly_file.write(str(line) + '\n')
-print(assembler.direc_j)
-print(assembler.instr[9][1][1].value)
+# print(assembler.direc_j)
+# print(assembler.instr[9][1][1].value)
 assembler.instr.append("FIN")
-print(assembler.instr)
+
 # ----- Para debug -----
 # show_code(content)
 # print()
@@ -518,81 +527,16 @@ N = 100
 i = 0
 inst = 0
 # Aca estoy asumiendo que solo serán int, para arrays tengo que hacer otrea cosa
-variables = defaultdict(int)
-while i < N:
-    i += 1
-    if assembler.instr[inst][0] == "F":
-        break
 
-    if assembler.instr[inst][0] == "DATA:":
-        while assembler.instr[inst][0] != "CODE:":
-            inst += 1
-            if len(assembler.instr[inst]) > 1:
-                variables[assembler.instr[inst][0]] = int(
-                    assembler.instr[inst][1][0])
-        inst += 1
-    """
-    Comienza el codigo
-    """
-
-    if assembler.instr[inst][0] == "MOV":
-        if type(assembler.instr[inst][1][0]) == Registro:
-            if type(assembler.instr[inst][1][1]) == Literal:
-
-                assembler.cambiar_reg(
-                    assembler.instr[inst][1][0], assembler.instr[inst][1][1].value)
-            elif type(assembler.instr[inst][1][1]) == Direccion:
-                valor = variables[assembler.instr[inst][1]
-                                  [1].value.replace('(', '').replace(')', '')]
-                assembler.cambiar_reg(
-                    assembler.instr[inst][1][0], valor)
-                print(valor)
-            elif type(assembler.instr[inst][1][1]) == Registro:
-                assembler.cambiar_reg(
-                    assembler.instr[inst][1][0].letra, assembler.instr[inst][1][1])
-
-        elif type(assembler.instr[inst][1][0]) == Direccion:
-            if type(assembler.instr[inst][1][1]) == Registro:
-                if assembler.instr[inst][1][1].letra == "A":
-                    _d = assembler.instr[inst][1][0].value.replace(
-                        '(', '').replace(')', '')
-                    assembler.cambiar_dir(
-                        variables, _d, assembler.registro_a)
-                else:
-                    assembler.cambiar_dir(
-                        variables, _d, assembler.registro_b)
-    if assembler.instr[inst][0] == "ADD":
-        if type(assembler.instr[inst][1][0]) == Registro:
-            if type(assembler.instr[inst][1][1]) == Literal:
-                assembler.cambiar_reg(
-                    assembler.instr[inst][1][0], assembler.instr[inst][1][1].value)
-            elif type(assembler.instr[inst][1][1]) == Direccion:
-                valor = variables[assembler.instr[inst][1]
-                                  [1].value.replace('(', '').replace(')', '')]
-                assembler.cambiar_reg(
-                    assembler.instr[inst][1][0], valor)
-                print(valor)
-            elif type(assembler.instr[inst][1][1]) == Registro:
-                assembler.cambiar_reg(
-                    assembler.instr[inst][1][0].letra, assembler.instr[inst][1][1])
-
-        elif type(assembler.instr[inst][1][0]) == Direccion:
-            if type(assembler.instr[inst][1][1]) == Registro:
-                if assembler.instr[inst][1][1].letra == "A":
-                    _d = assembler.instr[inst][1][0].value.replace(
-                        '(', '').replace(')', '')
-                    assembler.cambiar_dir(
-                        variables, _d, assembler.registro_a)
-                else:
-                    assembler.cambiar_dir(
-                        variables, _d, assembler.registro_b)
-    elif assembler.instr[inst][0] == "JMP":
-        assembler.instr[inst][1]
-        inst = assembler.direc_j[assembler.instr[inst][1][0]]
-    # elif assembler.instr[inst][0] == "CMP":
-    #    print(assembler.instr[inst][1][0].value,
-    #          assembler.instr[inst][1][1].value)
-    # print(assembler.repr[inst])
-    inst += 1
-print(assembler.registro_a.value)
-print(variables)
+print(assembler.repr.pop(0))
+data_2 = []
+indice = 0
+for index, datos in enumerate(assembler.repr, start=0):
+    if datos == "CODE:":
+        indice = index
+datos = assembler.repr[:indice]
+codigo = assembler.repr[indice+1:]
+datos_valor = assembler.instr[:indice]
+codigo_valor = assembler.instr[indice+1:]
+print(datos_valor)
+print(codigo_valor[2][1][1].value)
