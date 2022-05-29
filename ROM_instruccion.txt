@@ -4,10 +4,24 @@ MOV B, Lit
 MOV (Dir), B
 MOV B, Lit
 MOV (Dir), B
+MOV A, Lit
 MOV B, Lit
-MOV (Dir), B
-MOV B, Lit
-MOV (Dir), B
-MOV B, (Dir)
-INC B
-MOV A, (B)
+JMP Ins
+NOP
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+NOP
+MOV A, (Dir)
+ADD A, (Dir)
+NOP
+NOP
+MOV (Dir), A
+MOV A, (Dir)
+SUB A, Lit
+MOV (Dir), A
+CMP A, Lit
+JNE Ins
+NOP
+JMP Ins
+NOP
