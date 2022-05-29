@@ -250,6 +250,8 @@ def split_token(text: str) -> list:
     return list()
 
 
+''' Comienzo a leer el archivo y procesar las instrucciones '''
+
 with open(input_file, 'r') as file:
     # Proceso el archivo
     # Proceso cada línea de la lista
@@ -293,7 +295,6 @@ for line in content:
 # Proceso arrays
 for pos, line in enumerate(temp_data):
     line = process_arrays(line)
-
     data += line
 
 data = [trim_line(str(val)) for val in data]
@@ -307,7 +308,6 @@ for pos, line in enumerate(data):
 # Proceso instrucciones
 for pos, line in enumerate(machiny_stuff):
     # Demasiado cansado para usar funciones
-    # A continuación les presento mi vómito de código 🤮
     # Separar labels
     if TOKEN_LABEL in line:
         line = [line]
