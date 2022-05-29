@@ -1,9 +1,7 @@
-#!/usr/bin/python3.10
-
-from sqlite3 import register_adapter
 from sys import argv
 from collections import defaultdict
 import re
+import csv
 
 # Ctes.
 TOKENS_COMMENTS = ['//', ';']
@@ -16,8 +14,26 @@ TOKEN_INPUTS_SEPARATOR = ','
 REGISTERS = ['A', 'B']
 
 # Argumentos --> Archivo de entrada
-input_file = str(argv[1])
+input_file = str("codigo.txt")
 # Instrucciones
+
+
+def cargar_opcodes(ruta):
+    opcodes = defaultdict(str)
+    with open(ruta, mode='r') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=';')
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                line_count += 1
+                continue
+            else:
+                line_count += 1
+                opcodes[row[0]] = row[1]
+    return opcodes
+
+
+opcodes = cargar_opcodes("Instrucciones.csv")
 
 
 class Instruction:
@@ -27,9 +43,10 @@ class Instruction:
         self.inst = inst
         self.in_1 = in_1
         self.in_2 = in_2
+        self.string = None
 
     def __str__(self):
-        return f"{self.rom_dir}, {self.label}, {self.inst}, {self.in_1}, {self.in_2}"
+        return f"{self.rom_dir},{self.inst},{self.label} {self.in_1}, {self.in_2}"
 
 # Datos
 
@@ -41,7 +58,7 @@ class DataEntry:
         self.value = value
 
     def __str__(self):
-        return f"{self.rom_dir}, {self.label}, {self.value}"
+        return f"{self.rom_dir}, {self.label}, {self.value}, data"
 
 
 # ----- Líneas de texto -----
@@ -282,31 +299,22 @@ for pos, line in enumerate(temp_data):
 data = [trim_line(str(val)) for val in data]
 data = assign_rom_dir(data)
 
-"""Lloro de cansancio"""
-
-# Separo datos en sus componentes
 
 for pos, line in enumerate(data):
     line = convert_to_DataEntry(line)
     data[pos] = line
 
-"""Lloro desesperadamente"""
-
 # Proceso instrucciones
 for pos, line in enumerate(machiny_stuff):
     # Demasiado cansado para usar funciones
     # A continuación les presento mi vómito de código 🤮
-
     # Separar labels
     if TOKEN_LABEL in line:
         line = [line]
-
     else:
         line = line.split(' ', 1)
-
         if len(line) > 1:
             line[1] = line[1].split(TOKEN_INPUTS_SEPARATOR)
-
             for pos_2, random_suff in enumerate(line[1]):
                 line[1][pos_2] = trim_line(random_suff).replace(' ', '')
     # 'rom_dir', 'label', 'inst', 'in_A', 'in_B'
@@ -336,30 +344,33 @@ for pos, line in enumerate(machiny_stuff):
 
 
 label_pairs = dict()
-
+"""
+Acá se hace un diccionario con los labels para el acceso
+"""
 for unused_variable_in_python in data:
     if unused_variable_in_python.label:
-        label_pairs[unused_variable_in_python.label] = unused_variable_in_python.rom_dir
-
+        label_pairs[
+            unused_variable_in_python.label] = unused_variable_in_python.rom_dir
 for unused_variable_in_python in machiny_stuff:
     if unused_variable_in_python.label:
-        label_pairs[unused_variable_in_python.label] = unused_variable_in_python.rom_dir
+        label_pairs[
+            unused_variable_in_python.label] = unused_variable_in_python.rom_dir
 
+# for line in machiny_stuff:
+#    if line.in_1:
+#        # Potenciales bugs con substrings
+#        for key in label_pairs.keys():
+#            if line.in_1.replace('(', '').replace(')', '') == key:
+#                line.in_1 = line.in_1.replace(key, str(label_pairs[key]))
+#
+#    if line.in_2:
+#        # Potenciales bugs con substrings
+#        for key in label_pairs.keys():
+#            if line.in_2.replace('(', '').replace(')', '') == key:
+#                line.in_2 = line.in_2.replace(key, str(label_pairs[key]))
 
-for line in machiny_stuff:
-    if line.in_1:
-        # Potenciales bugs con substrings
-        for key in label_pairs.keys():
-            if line.in_1.replace('(', '').replace(')', '') == key:
-                line.in_1 = line.in_1.replace(key, str(label_pairs[key]))
-
-    if line.in_2:
-        # Potenciales bugs con substrings
-        for key in label_pairs.keys():
-            if line.in_2.replace('(', '').replace(')', '') == key:
-                line.in_2 = line.in_2.replace(key, str(label_pairs[key]))
-
-
+"""
+"""
 # Borro las labels. Son innecesarias.
 for line in machiny_stuff:
     if line.label:
@@ -370,173 +381,96 @@ for line in data:
     if line.label:
         line.label = ''
 
+total_instrucciones = []
+total_instrucciones_string = []
 
-class Literal:
-    def __init__(self, lit):
-        self.value = lit
+for d in machiny_stuff:
+    _dir_1 = (d.in_1.replace('(', '').replace(')', '')
+              in label_pairs.keys())
+    _dir_2 = (d.in_2.replace('(', '').replace(')', '')
+              in label_pairs.keys())
+    _reg_1 = (("A" in d.in_1) or ("B" in d.in_1))
+    _reg_2 = (("A" in d.in_2) or ("B" in d.in_2))
+    _lit_1 = d.in_1.isdigit()
+    _lit_2 = d.in_2.isdigit()
+    lit_dir = ""
+    direccion = 0
+    if d.inst == "NOP":
+        d.string = "NOP"
+        direccion = int(0)
 
-    def __repr__(self):
-        return "Lit"
+    elif _reg_1 and _reg_2:
+        d.string = "{} {}, {}".format(d.inst, d.in_1, d.in_2)
+        direccion = int(0)
 
+    elif _reg_1 and _lit_2:
+        d.string = "{} {}, {}".format(d.inst, d.in_1, "Lit")
+        direccion = int(d.in_2)
 
-class Direccion:
-    def __init__(self, dir):
-        self.value = dir
+    elif _reg_1 and _dir_2:
+        d.string = "{} {}, {}".format(d.inst, d.in_1, "(Dir)")
+        direccion = d.in_2.replace('(', '').replace(')', '')
+        direccion = label_pairs[direccion]
 
-    def __repr__(self):
-        return "(Dir)"
+    elif _dir_1 and _reg_2:
+        d.string = "{} {}, {}".format(d.inst, "(Dir)", d.in_2)
+        direccion = d.in_1.replace('(', '').replace(')', '')
+        direccion = label_pairs[direccion]
 
+    elif _dir_1 and not d.in_2:
+        if "(" in d.in_1:
+            d.string = "{} {}".format(d.inst, "(Dir)")
+            direccion = d.in_1.replace('(', '').replace(')', '')
+            direccion = label_pairs[direccion]
 
-class Registro:
-    def __init__(self, valor, letra):
-        self.value = valor
-        self.letra = letra
-
-    def __repr__(self):
-        return self.letra
-
-
-class Subrutina:
-    def __init__(self, valor):
-        self.value = valor
-
-    def __repr__(self):
-        return self.valor
-
-
-class Assembler:
-    def __init__(self, instruccion, representacion):
-        self.instr = instruccion
-        self.repr = representacion
-        self.direc_j = defaultdict(int)
-        self.registro_a = Registro
-        self.registro_b = Registro
-
-    def cambiar_reg(self, reg, value):
-        if reg.letra == "A":
-            self.registro_a.value = value
-            if type(value) == Registro:
-                self.registro_a.value = value.value
         else:
-            self.registro_b.value = value
-            if type(value) == Registro:
-                self.registro_b.value = value.value
+            d.string = "{} {}".format(d.inst, "Ins")
+            direccion = d.in_1.replace('(', '').replace(')', '')
+            direccion = label_pairs[direccion]
+    lit_dir = f'{int(direccion):016b}'
+    if d.string in opcodes.keys():
+        instrucciones = lit_dir + \
+            (20-len(opcodes[d.string]))*'0'+opcodes[d.string]
+        total_instrucciones.append(instrucciones)
 
-    def add_reg(self, reg, value):
-        if type(value) == Literal:
-            if reg.letra == "A":
-                self.registro_a.value += value.valor
-            else:
-                self.registro_b.value += value.valor
-        if type(value) == Direccion:
-            print("AAAAA")
-        if type(value) == int:
-            if reg.letra == "A":
-                self.registro_a.value += value
-            else:
-                self.registro_b.vlaue += value
-        else:
-            if reg.letra == "A":
-                self.registro_a.value += value.value
-            else:
-                self.registro_b.value += value.value
+    else:
+        print("OPCODE NO ENCONTRADO ERROR", d)
+    total_instrucciones_string.append(d.string)
 
-    def cambiar_dir(self, direccion_jump, dir, registro):
-        direccion_jump[dir] = registro.value
+list_data_inst = []
+list_data_str = []
+for d in data:
+    # Primera op
+    string = "MOV B, Lit".format(d.value)
+    direccion = int(d.value)
+    list_data_str.append(string)
+    lit_dir = f'{int(direccion):016b}'
+    if string in opcodes.keys():
+        instrucciones = lit_dir + \
+            (20-len(opcodes[string]))*'0'+opcodes[string]
+        list_data_inst.append(instrucciones)
+    else:
+        print("OPCODE NO ENCONTRADO ERROR", d)
+    # Segunda op
+    string = "MOV (Dir), B"
+    list_data_str.append(string)
+    direccion = d.rom_dir
+    lit_dir = f'{int(direccion):016b}'
+    if string in opcodes.keys():
+        instrucciones = lit_dir + \
+            (20-len(opcodes[string]))*'0'+opcodes[string]
+        list_data_inst.append(instrucciones)
+    else:
+        print("OPCODE NO ENCONTRADO ERROR", d)
+instrucciones_finales = [*list_data_inst, *total_instrucciones]
+instrucciones_finales_string = [*list_data_str, *total_instrucciones_string]
 
-    def __repr__(self):
-        if self.repr:
-            texto = ''
-            for r in self.repr:
-                texto += r+"\n"
-            return texto
-        else:
-            return "Class Assembler"
+with open("ROM.txt", 'w') as f:
+    for inst in instrucciones_finales:
+        f.write(inst)
+        f.write('\n')
 
-
-# Guardo la cosa fea en un documento por si acaso
-direccion_jump = defaultdict(int)
-assembler = Assembler([], [])
-with open(input_file, 'r') as file:
-    content = [trim_line(remove_comments(line))
-               for line
-               in file.readlines()
-               if trim_line(remove_comments(line))]
-    inicial = content[:]
-    for index, line in enumerate(content, start=0):
-        line = line.split(" ")
-        if len(line) > 1:
-            line[1] = line[1].split(",")
-            if len(line[1]) > 1:
-                _l = []
-                for l in line[1]:
-                    if ("(" and ")") in l:
-                        l = Direccion(l)
-                        _l.append(l)
-                        # Acá tengo que ver que hacer con las direcciones
-
-                    elif l.isnumeric():
-                        l = Literal(l)
-                        _l.append(l)
-                        # Acá van los literales
-
-                    elif l.isascii():
-                        if l == "A":
-                            reg = Registro(0, "A")
-                            assembler.registro_a = reg
-                            _l.append(reg)
-                            pass
-                            # print("registro A")
-                        elif l == "B":
-                            reg = Registro(0, "B")
-                            _l.append(reg)
-                            assembler.registro_b = reg
-                    else:
-                        _l.append(l)
-                line[1] = _l
-                # print("Registro B")
-                # line[1] = _l
-        else:
-            if ":" in line[0]:
-                assembler.direc_j[line[0][:-1]] = index
-        linea = ''
-        if len(line) > 1:
-            linea = linea + str(line[0]) + " "
-            _l = ', '.join(map(str, line[1]))
-            linea = linea+_l
-        else:
-            linea += str(line[0])
-        assembler.repr.append(linea)
-        assembler.instr.append(line)
-
-        # ugly_file.write(str(line) + '\n')
-# print(assembler.direc_j)
-# print(assembler.instr[9][1][1].value)
-assembler.instr.append("FIN")
-
-# ----- Para debug -----
-# show_code(content)
-# print()
-# show_code(data)
-# print()
-# show_code(machiny_stuff)
-"""
-Corro el assambler
-"""
-N = 100
-i = 0
-inst = 0
-# Aca estoy asumiendo que solo serán int, para arrays tengo que hacer otrea cosa
-
-print(assembler.repr.pop(0))
-data_2 = []
-indice = 0
-for index, datos in enumerate(assembler.repr, start=0):
-    if datos == "CODE:":
-        indice = index
-datos = assembler.repr[:indice]
-codigo = assembler.repr[indice+1:]
-datos_valor = assembler.instr[:indice]
-codigo_valor = assembler.instr[indice+1:]
-print(datos_valor)
-print(codigo_valor[2][1][1].value)
+with open("ROM_instruccion.txt", 'w') as f:
+    for inst in instrucciones_finales_string:
+        f.write(inst)
+        f.write('\n')
