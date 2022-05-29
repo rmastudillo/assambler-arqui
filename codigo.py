@@ -14,7 +14,7 @@ TOKEN_INPUTS_SEPARATOR = ','
 REGISTERS = ['A', 'B']
 
 # Argumentos --> Archivo de entrada
-input_file = str("codigo.txt")
+input_file = str(argv[1])
 # Instrucciones
 
 
@@ -387,8 +387,13 @@ total_instrucciones_string = []
 for d in machiny_stuff:
     _dir_1 = (d.in_1.replace('(', '').replace(')', '')
               in label_pairs.keys())
+    _dir_1_num = (d.in_1.replace('(', '').replace(')',
+                  '').replace(' ', '').isdigit())
+
     _dir_2 = (d.in_2.replace('(', '').replace(')', '')
               in label_pairs.keys())
+    _dir_2_num = (d.in_2.replace('(', '').replace(')',
+                  '').replace(' ', '').isdigit())
     _reg_1 = (("A" in d.in_1) or ("B" in d.in_1))
     _reg_2 = (("A" in d.in_2) or ("B" in d.in_2))
     _lit_1 = d.in_1.isdigit()
@@ -407,26 +412,40 @@ for d in machiny_stuff:
         d.string = "{} {}, {}".format(d.inst, d.in_1, "Lit")
         direccion = int(d.in_2)
 
-    elif _reg_1 and _dir_2:
+    elif _reg_1 and (_dir_2 or _dir_2_num):
         d.string = "{} {}, {}".format(d.inst, d.in_1, "(Dir)")
         direccion = d.in_2.replace('(', '').replace(')', '')
-        direccion = label_pairs[direccion]
+        if _dir_2_num:
+            direccion = int(d.in_2.replace('(', '').replace(')',
+                                                            '').replace(' ', ''))
+        else:
+            direccion = label_pairs[direccion]
 
-    elif _dir_1 and _reg_2:
+    elif (_dir_1 or _dir_1_num) and _reg_2:
         d.string = "{} {}, {}".format(d.inst, "(Dir)", d.in_2)
         direccion = d.in_1.replace('(', '').replace(')', '')
-        direccion = label_pairs[direccion]
-
-    elif _dir_1 and not d.in_2:
+        if _dir_1_num:
+            direccion = int(d.in_1.replace('(', '').replace(')',
+                                                            '').replace(' ', ''))
+        else:
+            direccion = label_pairs[direccion]
+    elif (_dir_1 or _dir_1_num) and not d.in_2:
         if "(" in d.in_1:
             d.string = "{} {}".format(d.inst, "(Dir)")
             direccion = d.in_1.replace('(', '').replace(')', '')
-            direccion = label_pairs[direccion]
+            if _dir_1_num:
+                direccion = int(d.in_1.replace('(', '').replace(')',
+                                                                '').replace(' ', ''))
+            else:
+                direccion = label_pairs[direccion]
 
         else:
             d.string = "{} {}".format(d.inst, "Ins")
             direccion = d.in_1.replace('(', '').replace(')', '')
             direccion = label_pairs[direccion]
+    elif _reg_1 and not d.in_2:
+        d.string = "{} {}".format(d.inst, d.in_1)
+        direccion = int(0)
     lit_dir = f'{int(direccion):016b}'
     if d.string in opcodes.keys():
         instrucciones = lit_dir + \
@@ -474,3 +493,4 @@ with open("ROM_instruccion.txt", 'w') as f:
     for inst in instrucciones_finales_string:
         f.write(inst)
         f.write('\n')
+print("FIN")
