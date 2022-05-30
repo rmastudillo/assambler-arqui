@@ -2,6 +2,10 @@ from sys import argv
 from collections import defaultdict
 import re
 import csv
+from iic2343 import Basys3
+
+
+rom_programmer = Basys3()
 
 # Ctes.
 TOKENS_COMMENTS = ['//', ';']
@@ -24,7 +28,7 @@ def cargar_opcodes(ruta):
         csv_reader = csv.reader(csv_file, delimiter=';')
         line_count = 0
         for row in csv_reader:
-            if line_count == 0 or line_count == 1 :
+            if line_count == 0 or line_count == 1:
                 line_count += 1
                 continue
             else:
@@ -483,12 +487,20 @@ for d in data:
         print("OPCODE NO ENCONTRADO ERROR", d)
 instrucciones_finales = [*list_data_inst, *total_instrucciones]
 instrucciones_finales_string = [*list_data_str, *total_instrucciones_string]
-
+"""
+Acá se escriben las instrucciones
+"""
+rom_programmer.begin()
 with open("ROM.txt", 'w') as f:
-    for inst in instrucciones_finales:
+    for index, inst in enumerate(instrucciones_finales):
         f.write(inst)
+        rom_programmer.write(index, bytearray(inst, encoding='utf8'))
         f.write('\n')
+rom_programmer.end()
 
+"""
+Esto es solo para debug
+"""
 with open("ROM_instruccion.txt", 'w') as f:
     for inst in instrucciones_finales_string:
         f.write(inst)
