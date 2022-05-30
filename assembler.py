@@ -24,7 +24,7 @@ def cargar_opcodes(ruta):
         csv_reader = csv.reader(csv_file, delimiter=';')
         line_count = 0
         for row in csv_reader:
-            if line_count == 0:
+            if line_count == 0 or line_count == 1 :
                 line_count += 1
                 continue
             else:
@@ -33,7 +33,7 @@ def cargar_opcodes(ruta):
     return opcodes
 
 
-opcodes = cargar_opcodes("Instrucciones.csv")
+opcodes = cargar_opcodes("Instrucciones-computador.csv")
 
 
 class Instruction:
