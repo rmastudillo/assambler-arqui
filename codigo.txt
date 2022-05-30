@@ -3,7 +3,7 @@ DATA:
  mul_dos 3
  resultado 0
 CODE:
- MOV A,2
+ MOV A,0
  MOV B,0
  JMP main
 main:
