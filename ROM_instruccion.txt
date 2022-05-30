@@ -25,3 +25,4 @@ JNE Ins
 NOP
 JMP Ins
 NOP
+MOV B, (Dir)
