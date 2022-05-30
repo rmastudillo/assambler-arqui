@@ -465,9 +465,9 @@ list_data_str = []
 for d in data:
     # Primera op
     string = "MOV B, Lit".format(d.value)
-    direccion = int(d.value)
+    valor_literal = int(d.value)
     list_data_str.append(string)
-    lit_dir = f'{int(direccion):016b}'
+    lit_dir = f'{int(valor_literal):016b}'
     if string in opcodes.keys():
         instrucciones = lit_dir + \
             (20-len(opcodes[string]))*'0'+opcodes[string]
@@ -478,6 +478,7 @@ for d in data:
     string = "MOV (Dir), B"
     list_data_str.append(string)
     direccion = d.rom_dir
+
     lit_dir = f'{int(direccion):016b}'
     if string in opcodes.keys():
         instrucciones = lit_dir + \
@@ -501,8 +502,10 @@ rom_programmer.end()
 """
 Esto es solo para debug
 """
+
 with open("ROM_instruccion.txt", 'w') as f:
     for inst in instrucciones_finales_string:
         f.write(inst)
         f.write('\n')
 print("FIN")
+print("Estos son los labels (Dir) y su dirección en memoria", label_pairs)
