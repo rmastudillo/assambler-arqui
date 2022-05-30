@@ -508,4 +508,3 @@ with open("ROM_instruccion.txt", 'w') as f:
         f.write(inst)
         f.write('\n')
 print("FIN")
-print("Estos son los labels (Dir) y su dirección en memoria", label_pairs)
