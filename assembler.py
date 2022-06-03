@@ -140,8 +140,8 @@ def hex2decimal(value: str = "0h") -> str:
 def process_bases(text: str) -> str:
 
     # BUG: Variables que incluyen
-    regex_filter = "[0-9]{1,}[" + ''.join(TOKENS_BASES) + "]{1}"
-
+    regex_filter = "\s--[0-9a-fA-F]+[--]?\s"
+    
     ugly_stuff = re.findall(regex_filter, text)
     print(ugly_stuff,text)
     while ugly_stuff:
@@ -466,7 +466,23 @@ list_data_str = []
 for d in data:
     # Primera op
     string = "MOV B, Lit".format(d.value)
-    valor_literal = int(d.value)
+    try:
+        valor_literal = int(d.value)
+    except:
+        match d.value[-1]:
+            case 'd':
+                valor_literal = dec2decimal(d.value[-1])
+
+            case 'b':
+                valor_literal = bin2decimal(d.value[-1])
+
+            case 'h':
+                valor_literal = hex2decimal(d.value[-1])
+
+            case _:
+                raise ValueError
+
+
     list_data_str.append(string)
     lit_dir = f'{int(valor_literal):016b}'
     if string in opcodes.keys():
