@@ -495,7 +495,8 @@ rom_programmer.begin()
 with open("ROM.txt", 'w') as f:
     for index, inst in enumerate(instrucciones_finales):
         f.write(inst)
-        rom_programmer.write(index, bytearray(inst, encoding='utf8'))
+        rom_programmer.write(index, bytearray(
+            hex(int(inst, 2))))
         f.write('\n')
 rom_programmer.end()
 
