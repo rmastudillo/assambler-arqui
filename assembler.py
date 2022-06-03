@@ -123,6 +123,7 @@ def bin2decimal(value: str = "0b") -> str:
 
 
 def hex2decimal(value: str = "0h") -> str:
+    print("estoy aqui")
     # TODO: Problema del yo del futuro
     value = value[:-1]
     base = 16
@@ -137,12 +138,12 @@ def hex2decimal(value: str = "0h") -> str:
 
 
 def process_bases(text: str) -> str:
-    # BUG: Variables que incluyen
 
+    # BUG: Variables que incluyen
     regex_filter = "[0-9]{1,}[" + ''.join(TOKENS_BASES) + "]{1}"
 
     ugly_stuff = re.findall(regex_filter, text)
-
+    print(ugly_stuff,text)
     while ugly_stuff:
 
         ugly_stuff = str(ugly_stuff[0])
@@ -491,14 +492,14 @@ instrucciones_finales_string = [*list_data_str, *total_instrucciones_string]
 """
 Acá se escriben las instrucciones
 """
-rom_programmer.begin()
+#rom_programmer.begin()
 with open("ROM.txt", 'w') as f:
     for index, inst in enumerate(instrucciones_finales):
         f.write(inst)
-        rom_programmer.write(index, bytearray(
-            hex(int(inst, 2))))
+        #rom_programmer.write(index, bytearray(
+        #    hex(int(inst, 2))))
         f.write('\n')
-rom_programmer.end()
+#rom_programmer.end()
 
 """
 Esto es solo para debug
