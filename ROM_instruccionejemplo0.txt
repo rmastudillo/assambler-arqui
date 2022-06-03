@@ -1,0 +1,8 @@
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV A, (Dir)
+JMP Ins
+MOV A, (Dir)
+NOP

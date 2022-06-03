@@ -257,10 +257,10 @@ def split_token(text: str) -> list:
 
 ''' Comienzo a leer el archivo y procesar las instrucciones '''
 
-with open(input_file, 'r') as file:
+with open(input_file, 'r', encoding='utf-8') as file:
     # Proceso el archivo
     # Proceso cada línea de la lista
-
+    print(file)
     content = [trim_line(remove_comments(line))
                for line
                in file.readlines()

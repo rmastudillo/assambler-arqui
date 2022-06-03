@@ -1,9 +1,746 @@
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+JMP Ins
+NOP
+MOV A, (Dir)
+MOV B, (Dir)
+JMP Ins
+NOP
 MOV A, Lit
 MOV B, Lit
-MOV (Dir), A
+JMP Ins
+NOP
+JMP Ins
+NOP
+MOV A, Lit
+MOV B, Lit
+JMP Ins
+NOP
+MOV B, Lit
 MOV A, B
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, A
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV (Dir), A
 MOV B, (Dir)
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV (Dir), A
+MOV B, (Dir)
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+MOV (Dir), B
+MOV A, (Dir)
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+MOV (Dir), B
+MOV A, (Dir)
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+JMP Ins
+NOP
+JMP Ins
+NOP
+MOV A, Lit
+MOV (Dir), A
+MOV A, Lit
+MOV (Dir), A
+MOV B, Lit
+JMP Ins
+NOP
+MOV A, Lit
+CMP A, Lit
+JEQ Ins
+CMP A, Lit
+JEQ Ins
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+CMP A, (Dir)
+JEQ Ins
+CMP A, (Dir)
+JEQ Ins
+CMP A, (Dir)
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+CMP A, (Dir)
+JEQ Ins
+CMP A, (Dir)
+JEQ Ins
+CMP A, (Dir)
+JEQ Ins
+JMP Ins
+NOP
+JMP Ins
+NOP
+JMP Ins
+NOP
+MOV A, Lit
+MOV (Dir), A
+MOV A, Lit
+MOV (Dir), A
+MOV B, Lit
+JMP Ins
+NOP
+MOV A, Lit
+CMP A, Lit
+JNE Ins
+CMP A, Lit
+JNE Ins
+JMP Ins
+NOP
+CMP A, Lit
+JNE Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+CMP A, Lit
+JGT Ins
+CMP A, Lit
+JGT Ins
+CMP A, Lit
+JGT Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+CMP A, Lit
+JGE Ins
+CMP A, Lit
+JGE Ins
+JMP Ins
+NOP
+CMP A, Lit
+JGE Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+CMP A, Lit
+JLT Ins
+CMP A, Lit
+JLT Ins
+CMP A, Lit
+JLT Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+CMP A, Lit
+JLE Ins
+CMP A, Lit
+JLE Ins
+JMP Ins
+NOP
+CMP A, Lit
+JLE Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+CMP A, Lit
+JCR Ins
+CMP A, Lit
+JCR Ins
+JMP Ins
+NOP
+CMP A, Lit
+JCR Ins
+JMP Ins
+NOP
+JMP Ins
+NOP
+JMP Ins
+NOP
+MOV A, Lit
+MOV (Dir), A
+MOV A, Lit
+MOV (Dir), A
+MOV B, Lit
+JMP Ins
+NOP
+INC A
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+INC B
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+DEC A
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+JMP Ins
+NOP
+JMP Ins
+NOP
+MOV A, Lit
+MOV (Dir), A
+MOV A, Lit
+MOV (Dir), A
+MOV B, Lit
+JMP Ins
+NOP
+MOV A, Lit
+MOV B, Lit
+ADD A, B
+CMP A, Lit
+JNE Ins
+ADD A, B
+JEQ Ins
+ADD A, B
+JCR Ins
+ADD A, B
+JLT Ins
+MOV A, Lit
+MOV B, Lit
+ADD A, B
+JNE Ins
+ADD A, B
+JLT Ins
+MOV A, Lit
+MOV B, Lit
+ADD A, B
+JCR Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
+ADD B, A
+MOV A, Lit
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+ADD A, Lit
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+ADD B, Lit
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+ADD A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+ADD A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+ADD B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+ADD B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+ADD (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
+ADD (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
 SUB A, B
+CMP A, Lit
+JNE Ins
+SUB A, B
+JEQ Ins
+SUB A, B
+JCR Ins
+SUB A, B
+JLT Ins
+MOV A, Lit
+MOV B, Lit
+SUB A, B
+JNE Ins
+SUB A, B
+JLT Ins
+MOV A, Lit
+MOV B, Lit
+SUB A, B
+JCR Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
+SUB B, A
+MOV A, Lit
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+SUB A, Lit
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+SUB B, Lit
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+SUB A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+SUB A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+SUB B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+SUB B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+SUB (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
+SUB (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
+AND A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+AND B, A
+MOV A, Lit
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+AND A, Lit
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+AND B, Lit
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+AND A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+AND A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+AND B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+AND B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
+AND (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+AND (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
+OR A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+OR B, A
+MOV A, Lit
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+OR A, Lit
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+OR B, Lit
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+OR A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+OR A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+OR B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+OR B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
+OR (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+OR (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+MOV B, Lit
 XOR A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
 XOR B, A
-XOR A, B
+MOV A, Lit
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+XOR A, Lit
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+XOR B, Lit
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+XOR A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+XOR A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+XOR B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+XOR B, (Dir)
+MOV A, B
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+XOR (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV B, Lit
+XOR (Dir)
+MOV A, (Dir)
+CMP A, Lit
+JEQ Ins
+JMP Ins
+NOP
+JMP Ins
+NOP
+JMP Ins
+NOP
+MOV A, Lit
+MOV (Dir), A
+MOV A, Lit
+MOV (Dir), A
+MOV B, Lit
+JMP Ins
+NOP
+SUB B, Lit
+MOV A, Lit
+NOT A
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+NOT B, A
+SUB A, Lit
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+SUB B, Lit
+NOT (Dir), A
+MOV A, (Dir)
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+SUB B, Lit
+NOT (Dir), A
+MOV A, (Dir)
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+SHL A
+CMP A, Lit
+JNE Ins
+SHL A
+JCR Ins
+SHL A
+JCR Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+SHL B, A
+MOV A, Lit
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+SHL (Dir), A
+MOV A, Lit
+CMP A, (Dir)
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+SHL (Dir), A
+MOV A, Lit
+CMP A, (Dir)
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+SHR A
+CMP A, Lit
+JNE Ins
+SHR A
+JCR Ins
+SHR A
+JCR Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, Lit
+SHR B, A
+MOV A, Lit
+CMP A, B
+JMP Ins
+JMP Ins
+NOP
+INC (Dir)
+SHR (Dir), A
+MOV A, Lit
+CMP A, (Dir)
+JMP Ins
+JMP Ins
+NOP
+INC (Dir)
+SHR (Dir), A
+MOV A, Lit
+CMP A, (Dir)
+JMP Ins
+JMP Ins
+NOP
+JMP Ins
+NOP
+JMP Ins

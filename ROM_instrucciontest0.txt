@@ -1,0 +1,58 @@
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+NOP
+MOV A, Lit
+MOV B, Lit
+CMP A, B
+JEQ Ins
+MOV B, Lit
+MOV A, Lit
+CMP A, B
+JEQ Ins
+MOV A, Lit
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+JMP Ins
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+MOV A, (Dir)
+CMP A, B
+JEQ Ins
+MOV B, (Dir)
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+MOV A, Lit
+MOV B, Lit
+MOV B, (Dir)
+CMP A, B
+JEQ Ins
+MOV A, (Dir)
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+INC (Dir)
+MOV A, (Dir)
+MOV B, Lit
+CMP A, B
+JEQ Ins
+JMP Ins
+NOP
+MOV A, Lit
+MOV B, Lit
+JMP Ins
+NOP
+MOV A, Lit
+MOV B, Lit
+NOP
+JMP Ins
+CMP A, B
+JEQ Ins
