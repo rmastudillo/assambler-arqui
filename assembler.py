@@ -519,12 +519,10 @@ with open("ROM.txt", 'w') as f:
 
     for index, inst in enumerate(instrucciones_finales):
         f.write(inst)
-        #a = hex(int(inst, 2))
         print(inst[:16], ' ', inst[16:])
         lista_hex = [conver_hex(inst[:4]), conver_hex(inst[4:12]),
                      conver_hex(inst[12:20]), conver_hex(inst[20:28]), conver_hex(inst[28:36])]
         lista_hex = bytearray(lista_hex)
-        #[0x0, 0x00, 0x20, 0x18, 0x03]
         rom_programmer.write(index, bytearray(lista_hex))
         f.write('\n')
 
