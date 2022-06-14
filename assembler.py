@@ -5,8 +5,6 @@ import csv
 from iic2343 import Basys3
 
 
-rom_programmer = Basys3()
-
 # Ctes.
 TOKENS_COMMENTS = ['//', ';']
 TOKENS_STRINGS = ['"', "'"]
@@ -141,9 +139,9 @@ def process_bases(text: str) -> str:
 
     # BUG: Variables que incluyen
     regex_filter = "\s--[0-9a-fA-F]+[--]?\s"
-    
+
     ugly_stuff = re.findall(regex_filter, text)
-    print(ugly_stuff,text)
+    print(ugly_stuff, text)
     while ugly_stuff:
 
         ugly_stuff = str(ugly_stuff[0])
@@ -482,7 +480,6 @@ for d in data:
             case _:
                 raise ValueError
 
-
     list_data_str.append(string)
     lit_dir = f'{int(valor_literal):016b}'
     if string in opcodes.keys():
@@ -508,14 +505,30 @@ instrucciones_finales_string = [*list_data_str, *total_instrucciones_string]
 """
 Acá se escriben las instrucciones
 """
-#rom_programmer.begin()
+
+
+def conver_hex(binario_string):
+    # print(type(hex(int(binario_string, 2))), int(
+    #   hex(int(binario_string, 2))), type(int(hex(int(binario_string, 2)))))
+    return int(binario_string, 2)
+
+
+rom_programmer = Basys3()
+rom_programmer.begin(port_number=1)
 with open("ROM.txt", 'w') as f:
+
     for index, inst in enumerate(instrucciones_finales):
         f.write(inst)
-        #rom_programmer.write(index, bytearray(
-        #    hex(int(inst, 2))))
+        #a = hex(int(inst, 2))
+        print(inst[:16], ' ', inst[16:])
+        lista_hex = [conver_hex(inst[:4]), conver_hex(inst[4:12]),
+                     conver_hex(inst[12:20]), conver_hex(inst[20:28]), conver_hex(inst[28:36])]
+        lista_hex = bytearray(lista_hex)
+        #[0x0, 0x00, 0x20, 0x18, 0x03]
+        rom_programmer.write(index, bytearray(lista_hex))
         f.write('\n')
-#rom_programmer.end()
+
+rom_programmer.end()
 
 """
 Esto es solo para debug
