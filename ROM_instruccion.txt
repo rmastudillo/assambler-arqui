@@ -1,8 +1,6 @@
 MOV B, Lit
 MOV (Dir), B
-MOV B, Lit
-MOV (Dir), B
 MOV A, Lit
 MOV B, Lit
-MOV A, B
-MOV B, Lit
+OR (Dir)
+MOV A, (Dir)

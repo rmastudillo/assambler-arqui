@@ -1,8 +1,7 @@
 DATA:
- mul_uno 5
- mul_dos 9
+ cuatro 2
 CODE:
- MOV A,2
- MOV B,7
- MOV A, B
- MOV B,1
+MOV A,5
+MOV B,13
+OR (cuatro)
+MOV A,(cuatro)

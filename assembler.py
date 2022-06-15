@@ -3,6 +3,7 @@ from collections import defaultdict
 import re
 import csv
 from iic2343 import Basys3
+import pandas as pd
 
 
 # Ctes.
@@ -22,20 +23,16 @@ input_file = str(argv[1])
 
 def cargar_opcodes(ruta):
     opcodes = defaultdict(str)
-    with open(ruta, mode='r') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=';')
-        line_count = 0
-        for row in csv_reader:
-            if line_count == 0 or line_count == 1:
-                line_count += 1
-                continue
-            else:
-                line_count += 1
-                opcodes[row[0]] = row[1]
+    datos = pd.read_excel(ruta, sheet_name="Etapa-2").fillna(0).reset_index()
+    for index, row in datos.iterrows():
+        if index >= 1 and row[1] != 0:
+            opcodes[row[1]] = row[2]
+            #print(row[1], row[2])
+
     return opcodes
 
 
-opcodes = cargar_opcodes("Instrucciones-computador.csv")
+opcodes = cargar_opcodes("Instrucciones-computador.xlsx")
 
 
 class Instruction:
