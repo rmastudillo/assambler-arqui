@@ -1,9 +1,9 @@
 from sys import argv
 from collections import defaultdict
 import re
-import csv
 from iic2343 import Basys3
 import pandas as pd
+import os
 
 
 # Ctes.
@@ -32,7 +32,8 @@ def cargar_opcodes(ruta):
     return opcodes
 
 
-opcodes = cargar_opcodes("Instrucciones-computador.xlsx")
+my_path = os.path.abspath(os.path.dirname(__file__))
+opcodes = cargar_opcodes(my_path+"/Instrucciones-computador.xlsx")
 
 
 class Instruction:
