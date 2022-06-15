@@ -1,7 +1,7 @@
 DATA:
- cuatro 2
+ cuatro 13
 CODE:
-MOV A,5
-MOV B,13
-OR (cuatro)
-MOV A,(cuatro)
+MOV B,7
+PUSH B
+MOV B,1
+POP B

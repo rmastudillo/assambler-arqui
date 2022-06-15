@@ -144,18 +144,16 @@ def process_bases(text: str) -> str:
 
         ugly_stuff = str(ugly_stuff[0])
 
-        match ugly_stuff[-1]:
-            case 'd':
-                nice_stuff = dec2decimal(ugly_stuff)
+        if ugly_stuff[-1] == 'd':
+            nice_stuff = dec2decimal(ugly_stuff)
+        elif ugly_stuff[-1] == 'b':
 
-            case 'b':
-                nice_stuff = bin2decimal(ugly_stuff)
+            nice_stuff = bin2decimal(ugly_stuff)
+        elif ugly_stuff[-1] == 'h':
 
-            case 'h':
-                nice_stuff = hex2decimal(ugly_stuff)
-
-            case _:
-                raise ValueError
+            nice_stuff = hex2decimal(ugly_stuff)
+        else:
+            raise ValueError
 
         parts = text.split(ugly_stuff)
         text = parts[0] + str(nice_stuff)
@@ -283,15 +281,14 @@ for line in content:
 
     # --------
 
-    match type_flag:
-        case 'DATA':
-            temp_data.append(line)
+    if type_flag == 'DATA':
+        temp_data.append(line)
 
-        case 'CODE':
-            machiny_stuff.append(line)
+    elif type_flag == 'CODE':
+        machiny_stuff.append(line)
 
-        case _:
-            raise ValueError
+    else:
+        raise ValueError
 
 # Proceso arrays
 for pos, line in enumerate(temp_data):
@@ -465,18 +462,17 @@ for d in data:
     try:
         valor_literal = int(d.value)
     except:
-        match d.value[-1]:
-            case 'd':
-                valor_literal = dec2decimal(d.value[-1])
+        if d.value[-1] == 'd':
 
-            case 'b':
-                valor_literal = bin2decimal(d.value[-1])
+            valor_literal = dec2decimal(d.value[-1])
+        elif d.value[-1] == 'b':
 
-            case 'h':
-                valor_literal = hex2decimal(d.value[-1])
+            valor_literal = bin2decimal(d.value[-1])
+        elif d.value[-1] == 'h':
 
-            case _:
-                raise ValueError
+            valor_literal = hex2decimal(d.value[-1])
+        else:
+            raise ValueError
 
     list_data_str.append(string)
     lit_dir = f'{int(valor_literal):016b}'
