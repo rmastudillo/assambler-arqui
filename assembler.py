@@ -22,6 +22,10 @@ input_file = str(argv[1])
 
 
 def cargar_opcodes(ruta):
+    """
+    recibe la ruta
+    retorna un diccionario con los opcodes de la primera columna del archivo
+    """
     opcodes = defaultdict(str)
     datos = pd.read_excel(ruta, sheet_name="Etapa-2").fillna(0).reset_index()
     for index, row in datos.iterrows():
@@ -37,6 +41,13 @@ opcodes = cargar_opcodes(my_path+"/Instrucciones-computador.xlsx")
 
 
 class Instruction:
+    """
+    Instruccion
+    rom_dir
+    label
+    inst
+    """
+
     def __init__(self, rom_dir, label, inst, in_1, in_2):
         self.rom_dir = rom_dir
         self.label = label
@@ -61,25 +72,26 @@ class DataEntry:
         return f"{self.rom_dir}, {self.label}, {self.value}, data"
 
 
+"""
+Limpiar texto
+"""
 # ----- Líneas de texto -----
 # Saca los comentarios
+
+
 def remove_comments(text: str) -> str:
     for token in TOKENS_COMMENTS:
         text = text.split(token, 1)[0]
     return text
 
-# Saco bordes
-
 
 def trim_line(text: str) -> str:
-    # Porque mágicamente es feliz si lo corro 2 veces
     for _ in range(2):
         # Sacamos lo saltos de línea
         # Sacamos los tabs del extremo
         # Sacamos los espacios de los extremos
         for thingy in ("\n", "\t", ' '):
             text = text.strip(thingy)
-
     return text
 
 # Saco dobles espacios y \t
@@ -95,45 +107,78 @@ def clear_mid_spaces(text: str) -> str:
 
     return text
 
-# ----- Convertir bases numericas -----
+
+"""
+Convertir bases numericas
+"""
 
 
 def dec2decimal(value: str = "0d") -> str:
+    """
+    Recibe un numero y lo retorna en decimal
+    """
     if 'd' in value:  # Porque por defecto es decimal
         value = value[:-1]
-
     return value
 
 
 def bin2decimal(value: str = "0b") -> str:
+    """
+    Recibe un numero y lo retorna en decimal
+    """
     value = value[:-1]
     base = 2
-
     try:
         value = int(value, base)
-
     except ValueError:
         pass
-
     return value
 
 
 def hex2decimal(value: str = "0h") -> str:
-    print("estoy aqui")
-    # TODO: Problema del yo del futuro
+    """
+    Recibe un numero y lo retorna en decimal
+    """
     value = value[:-1]
     base = 16
-
     try:
         value = int(value, base)
-
     except ValueError:
         pass
-
     return value
 
 
+def char2int(char: str = 'A') -> int:
+    return ord(char)
+
+
+def process_string(text: str) -> str:
+    # Para cada token del array (', ")
+    for token in TOKENS_STRINGS:
+        # Reemplazar letras por números hasta que no queden letras.
+        while token in text:
+            string = text.split(token, 2)[1]
+            new_string = str()
+            for char in string:
+                new_string += f"{char2int(char)}, "
+
+            text = text.split(token, 2)[0] + \
+                new_string[:-2] + text.split(token, 2)[2]
+    return text
+
+
+def process_arrays(text: str) -> list:
+    if TOKEN_ARRAY_SEPARATOR in text:
+        thingy = text.split(TOKEN_ARRAY_SEPARATOR)
+    else:
+        thingy = [text]
+    return thingy
+
+
 def process_bases(text: str) -> str:
+    """
+    Esto esta bug
+    """
 
     # BUG: Variables que incluyen
     regex_filter = "\s--[0-9a-fA-F]+[--]?\s"
@@ -163,51 +208,6 @@ def process_bases(text: str) -> str:
 
     return text
 
-# ----- Cosas de strings -----
-# Caracteres ascii a nros.
-
-
-def char2int(char: str = 'A') -> int:
-    return ord(char)
-
-# Convierto todos los acaracteres a numerso
-# Es treméndamente ineficiente.
-# Tal vez después la arregle
-
-
-def process_string(text: str) -> str:
-    # Para cada token del array (', ")
-    for token in TOKENS_STRINGS:
-        # Reemplazar letras por números hasta que no queden letras.
-        while token in text:
-            string = text.split(token, 2)[1]
-            new_string = str()
-
-            for char in string:
-                new_string += f"{char2int(char)}, "
-
-            text = text.split(token, 2)[0] + \
-                new_string[:-2] + text.split(token, 2)[2]
-
-    return text
-
-
-# ----- Cosas de arrays -----
-def process_arrays(text: str) -> list:
-    if TOKEN_ARRAY_SEPARATOR in text:
-        thingy = text.split(TOKEN_ARRAY_SEPARATOR)
-
-    else:
-        thingy = [text]
-
-    return thingy
-
-# ----- Para debug -----
-
-
-def show_code(code: list) -> None:
-    for code_line in code:
-        print(code_line)
 
 # ----- Direcciones de memoria y cosas feas realcionadas -----
 # Asigna direcciones de memoria a las instrucciones
@@ -221,9 +221,7 @@ def assign_rom_dir(code: list, starting_dir: int = 0) -> list:
     for instr in code:
         organized_code.append((instruction_counter,
                                instr))
-
         instruction_counter += 1
-
     return organized_code
 
 
@@ -507,8 +505,8 @@ def conver_hex(binario_string):
     return int(binario_string, 2)
 
 
-rom_programmer = Basys3()
-rom_programmer.begin(port_number=1)
+#rom_programmer = Basys3()
+# rom_programmer.begin(port_number=1)
 with open("ROM.txt", 'w') as f:
 
     for index, inst in enumerate(instrucciones_finales):
@@ -517,10 +515,10 @@ with open("ROM.txt", 'w') as f:
         lista_hex = [conver_hex(inst[:4]), conver_hex(inst[4:12]),
                      conver_hex(inst[12:20]), conver_hex(inst[20:28]), conver_hex(inst[28:36])]
         lista_hex = bytearray(lista_hex)
-        rom_programmer.write(index, bytearray(lista_hex))
+        #rom_programmer.write(index, bytearray(lista_hex))
         f.write('\n')
 
-rom_programmer.end()
+# rom_programmer.end()
 
 """
 Esto es solo para debug
