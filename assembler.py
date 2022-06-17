@@ -383,12 +383,14 @@ def procesar_indice(indice: int or str):
         t_indice = indice[1:-1]
 
         # 10b -> 2
-        if t_indice[-1] in 'hbd':
+        if t_indice[-1] in TOKENS_BASES:
             if t_indice in label_pairs.keys():
                 return [label_pairs[t_indice], '(Dir)']
 
             else:
+                # TODO: Debería retornar algo.
                 t_indice = convert_numbers_to_base_ten(t_indice)
+                return [t_indice, '(Lit)']
 
         if t_indice in label_pairs.keys():
             return [label_pairs[t_indice], '(Dir)']
@@ -502,9 +504,11 @@ for index, d in enumerate(machiny_stuff):
             resp_2 = opcodes["NOT B"].rjust(36, "0")
         elif assembly_inst_ == "MOV (Dir), Lit":
             direccion = f'{int(label_pairs[d.in_1[1:-1]]):016b}'
-            valor =  f'{int(d.in_2):016b}'
+            valor = f'{int(d.in_2):016b}'
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
-            move_a_lit = resp[:16] + opcodes["MOV A, Lit"]
+            move_a_lit = valor + opcodes["MOV A, Lit"].rjust(20, "0")
+            move_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20,"0")
+
             pass
 
 
@@ -549,14 +553,18 @@ def convert_data_entries_to_inst(data_entries_lst: list or tuple) -> list:
         val_as_binary = f'{int(numeric_val):016b}'
         dir_as_binary = f'{int(d_entry.rom_dir):016b}'
 
-        bin_result_1 = f"{val_as_binary}{str(opcodes[intr_1]).rjust(20, '0')}"
-        bin_result_2 = f"{dir_as_binary}{str(opcodes[intr_2]).rjust(20, '0')}"
-
-        list_data_inst.append(instrucciones)
-        list_data_inst.append(instrucciones)
+        list_data_inst.append(
+            f"{val_as_binary}{str(opcodes[intr_1]).rjust(20, '0')}")
+        list_data_inst.append(
+            f"{dir_as_binary}{str(opcodes[intr_2]).rjust(20, '0')}")
 
     ''''''
-    return list()  # TODO
+    return list_data_inst
+
+
+instrucciones_finales = [
+    *convert_data_entries_to_inst(data),
+    *total_instrucciones]
 
 
 print(type(data))  # TODO: sacar...
