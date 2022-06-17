@@ -1,6 +1,5 @@
 from sys import argv
 from collections import defaultdict
-# import re
 from iic2343 import Basys3
 import pandas as pd
 import os
@@ -537,12 +536,12 @@ for index, d in enumerate(machiny_stuff):
             valor = f'{int(d.in_2):016b}'
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
             move_a_lit = valor + opcodes["MOV A, Lit"].rjust(20, "0")
-            move_b_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20, "0")
+            move_b_dir_a = opcodes["MOV (B), A"].rjust(36, "0")
             pop_a = opcodes["POP A"].rjust(36, '0')
             pop_a_2 = opcodes["POP A2"].rjust(36, '0')
             total_instrucciones.append(push_a)
             total_instrucciones.append(move_a_lit)
-            total_instrucciones.append(move_dir_a)
+            total_instrucciones.append(move_b_dir_a)
             total_instrucciones.append(pop_a)
             total_instrucciones.append(pop_a_2)
     else:
@@ -605,9 +604,12 @@ instrucciones_finales = [
     *total_instrucciones]
 
 
-print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
-for i in instrucciones_finales: print(i[:16], i[16:])
-print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
+print(" \033[92;1m~~~~~~~~~~~ DATA ~~~~~~~~~~~\033[0m ")
+for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
+print(" \033[92;1m~~~~~~~~~~~ CODE ~~~~~~~~~~~\033[0m ")
+for i in total_instrucciones: print(i[:16], i[16:])
+print(" \033[92;1m~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m ")
+
 # print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)  # TODO: sacar...
 
 """Acá se escriben las instrucciones"""
@@ -639,6 +641,5 @@ with open("ROM.txt", 'w') as f:
 Esto es solo para debug
 """
 
-
-
-print("FIN")
+print('FIN')
+print('😊')
