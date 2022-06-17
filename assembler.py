@@ -27,8 +27,13 @@ input_file = str(argv[1])
 # Instrucciones
 
 
+DARKCYAN_BOLD = '\033[1;36m'
 RED_BOLD = '\033[1;91m'
 NORMAL_TXT = '\033[0m'
+
+
+def use_bloody_red_color(text) -> str:
+    return f"{DARKCYAN_BOLD}{text}{NORMAL_TXT}"
 
 
 def cargar_opcodes(ruta):
@@ -265,7 +270,7 @@ for line in content:
         machiny_stuff.append(line)
 
     else:
-        raise ValueError
+        raise ValueError(use_bloody_red_color('Algo malo pasó'))
 
 # Proceso arrays
 for pos, line in enumerate(temp_data):
@@ -362,8 +367,9 @@ def convert_numbers_to_base_ten(strange_base_num: str) -> str:
         return hex2decimal(strange_base_num)
 
     else:
-        raise ValueError(f"Se intentó convertir '{strange_base_num}' a "
-                         f"decimal, pero no es base 2, 16 ó 10")
+        raise ValueError(use_bloody_red_color(
+            f"Se intentó convertir '{strange_base_num}' a "
+            f"decimal, pero no es base 2, 16 ó 10"))
 
 
 def procesar_indice(indice: int or str):
@@ -385,6 +391,7 @@ def procesar_indice(indice: int or str):
 
     # label -> ['Lit', label --> lit]
     elif indice in label_pairs.keys():
+        breakpoint()
         return [label_pairs[indice], 'Ins']
 
     elif indice[0] == '(' and indice[-1] == ')':
@@ -414,7 +421,8 @@ def procesar_indice(indice: int or str):
         return [convert_numbers_to_base_ten(indice), 'Lit']
 
     else:
-        raise ValueError(f"El índice '{indice}' no está sorportado")
+        raise ValueError(use_bloody_red_color(
+            f"El índice '{indice}' no está sorportado"))
 
 
 def generar_codigo(valor, instruccion):
@@ -430,7 +438,8 @@ def generar_codigo(valor, instruccion):
 
     print(instruccion, opcodes)
 
-    raise KeyError("OPCODE NO ENCONTRADO ERROR", instruccion)
+    raise KeyError(use_bloody_red_color("OPCODE NO ENCONTRADO ERROR"),
+                   use_bloody_red_color(instruccion))
 
 
 def codigo_de_maquina(instruccion,assambler_inst):
@@ -453,6 +462,18 @@ def codigo_de_maquina(instruccion,assambler_inst):
 
     if instruccion.inst == "PUSH":
         instruccion_string = "PUSH {}".format(instruccion.in_1)
+        # resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
+        #             opcodes[instruccion_string]
+        resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
+        return resultado, instruccion_string
+    if instruccion.inst == "POP":
+        instruccion_string = "POP {}".format(instruccion.in_1)
+        # resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
+        #             opcodes[instruccion_string]
+        resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
+        return resultado, instruccion_string
+    if instruccion.inst == "INC":
+        instruccion_string = "INC {}".format(instruccion.in_1)
         # resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
         #             opcodes[instruccion_string]
         resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
@@ -480,7 +501,8 @@ def codigo_de_maquina(instruccion,assambler_inst):
             if instruccion_string not in opcodes.keys():
                 print(opcodes)
 
-                raise KeyError("1NO está en el opcode", instruccion_string)
+                raise KeyError(use_bloody_red_color("1NO está en el opcode"),
+                               use_bloody_red_color(instruccion_string))
 
             # resultado = (36 - len(opcodes[instruccion_string])) * \
             #             '0' + opcodes[instruccion_string]
@@ -497,10 +519,12 @@ def codigo_de_maquina(instruccion,assambler_inst):
             return resultado,instruccion_string
 
         else:
-            raise KeyError("2No está en el opcode", instruccion_string)
+            raise KeyError(use_bloody_red_color("2No está en el opcode"),
+                           use_bloody_red_color(instruccion_string))
 
     else:
-        raise KeyError("Instruccion no permitida", instruccion)
+        raise KeyError(use_bloody_red_color("Instruccion no permitida"),
+                       use_bloody_red_color(instruccion))
 
 
 for key in label_pairs.keys():
