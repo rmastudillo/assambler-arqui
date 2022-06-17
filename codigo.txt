@@ -1,7 +1,7 @@
 DATA:
 
     i 10
- a 5 
+ a 5
  b Ah
 CODE:
 
