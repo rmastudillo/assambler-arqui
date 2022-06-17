@@ -16,7 +16,9 @@ TOKEN_ARRAY_SEPARATOR = ','
 TOKEN_LABEL = ':'
 TOKEN_INPUTS_SEPARATOR = ','
 REGISTERS = ['A', 'B']
-
+CASOS_ESPECIALES = {
+    "SUB B, Lit" = '000000000000100100100'
+}
 # Argumentos --> Archivo de entrada
 input_file = str(argv[1])
 # Instrucciones
@@ -27,11 +29,11 @@ def cargar_opcodes(ruta):
     recibe la ruta
     retorna un diccionario con los opcodes de la primera columna del archivo
     """
-    opcodes = defaultdict(str)
+    opcodes_ = defaultdict(str)
     datos = pd.read_excel(ruta, sheet_name="Etapa-2").fillna(0).reset_index()
-    for index, row in datos.iterrows():
-        if index >= 1 and row[1] != 0:
-            opcodes[row[1]] = row[2]
+    for index_, row in datos.iterrows():
+        if index_ >= 1 and row[1] != 0:
+            opcodes_[row[1]] = row[2]
 
     return opcodes
 
@@ -72,9 +74,7 @@ class DataEntry:
         return f"{self.rom_dir}, {self.label}, {self.value}, data"
 
 
-"""
-Limpiar texto
-"""
+# Limpiar texto
 # ----- Líneas de texto -----
 # Saca los comentarios
 def remove_comments(text: str) -> str:
@@ -220,8 +220,6 @@ def process_arrays(text: str) -> list:
 # ----- Direcciones de memoria y cosas feas realcionadas -----
 # Asigna direcciones de memoria a las instrucciones
 # instr -> (dir, instr)
-
-
 def assign_rom_dir(code: list, starting_dir: int = 0) -> list:
     instruction_counter = starting_dir
     organized_code = list()
@@ -249,13 +247,9 @@ def convert_to_dataentry(entry: tuple) -> DataEntry:
 
     return entry
 
+
 # ----- Cosas mágicas con tokens -----
-def split_token(text: str) -> list:
-    return list()
-
-
 ''' Comienzo a leer el archivo y procesar las instrucciones '''
-
 with open(input_file, 'r', encoding='utf-8') as file:
     # Proceso el archivo
     # Proceso cada línea de la lista
@@ -272,7 +266,9 @@ for pos, line in enumerate(content):
     content[pos] = line
 
 # Dividir data y code
-temp_data, data, machiny_stuff = list(), list(), list()
+temp_data = list()
+data = list()
+machiny_stuff = list()
 type_flag = ''
 
 for line in content:
@@ -350,33 +346,17 @@ label_pairs = dict()
 """
 Acá se hace un diccionario con los labels para el acceso
 """
-for unused_variable_in_python in data:
-    if unused_variable_in_python.label:
+for unused_var_in_python in data:
+    if unused_var_in_python.label:
         label_pairs[
-            unused_variable_in_python.label] = unused_variable_in_python.rom_dir
-for unused_variable_in_python in machiny_stuff:
-    if unused_variable_in_python.label:
+            unused_var_in_python.label] = unused_var_in_python.rom_dir
+for unused_var_in_python in machiny_stuff:
+    if unused_var_in_python.label:
         label_pairs[
-            unused_variable_in_python.label] = unused_variable_in_python.rom_dir
-
-# for line in machiny_stuff:
-#    if line.in_1:
-#        # Potenciales bugs con substrings
-#        for key in label_pairs.keys():
-#            if line.in_1.replace('(', '').replace(')', '') == key:
-#                line.in_1 = line.in_1.replace(key, str(label_pairs[key]))
-#
-#    if line.in_2:
-#        # Potenciales bugs con substrings
-#        for key in label_pairs.keys():
-#            if line.in_2.replace('(', '').replace(')', '') == key:
-#                line.in_2 = line.in_2.replace(key, str(label_pairs[key]))
-
+            unused_var_in_python.label] = unused_var_in_python.rom_dir
 
 # Borro las labels. Son innecesarias.
-"""
-Label 
-"""
+"""Label"""
 for line in machiny_stuff:
     if line.label:
         line.label = ''
@@ -390,34 +370,29 @@ for line in data:
 total_instrucciones = []
 total_instrucciones_string = []
 
-"""
-Comienzo a procesar las instrucciones
-"""
+"""Comienzo a procesar las instrucciones"""
+
 print("////////////////////////")
 
 
+def convert_numbers_to_base_ten(strange_base_num: str) -> str:
+    if strange_base_num[-1] == 'd':
+        return dec2decimal(strange_base_num)
+
+    elif strange_base_num[-1] == 'b':
+        return bin2decimal(strange_base_num)
+
+    elif strange_base_num[-1] == 'h':
+        return hex2decimal(strange_base_num)
+
+    else:
+        raise ValueError(f"Se intentó convertir '{strange_base_num}' a "
+                         f"decimal, pero no es base 2, 16 ó 10")
+
+
 def procesar_indice(indice: int or str):
-    # MOV B, 5
-    # MOV B, (B)
-    # MOV B, (  B   )
-    # MOV B, (hola)
-    # [Intr, *Idx*, *Idx*]
-
+    # [Intr, indice, indice]
     indice = remove_strs(indice, ' ', '\t', '\n')
-
-    def convert_numbers_to_base_ten(strange_base_num: str) -> str:
-        if strange_base_num[-1] == 'd':
-            return dec2decimal(strange_base_num)
-
-        elif strange_base_num[-1] == 'b':
-            return bin2decimal(strange_base_num)
-
-        elif strange_base_num[-1] == 'h':
-            return hex2decimal(strange_base_num)
-
-        else:
-            raise ValueError(f"Se intentó convertir '{strange_base_num}' a "
-                             f"decimal, pero no es base 2, 16 ó 10")
 
     if indice in ('A', 'B'):
         # [, 'A||B']
@@ -438,6 +413,7 @@ def procesar_indice(indice: int or str):
         if t_indice[-1] in 'hbd':
             if t_indice in label_pairs.keys():
                 return [label_pairs[t_indice], '(Dir)']
+
             else:
                 t_indice = convert_numbers_to_base_ten(t_indice)
 
@@ -446,13 +422,12 @@ def procesar_indice(indice: int or str):
 
         elif t_indice.isnumeric():
             return [t_indice, '(Dir)']
+
         elif t_indice in ('A', 'B'):
             return [None, indice]
 
     elif indice[-1] in ('d', 'b', 'h'):
-        """
-        Si entra aca es porque es un numero en otra base
-        """
+        """Si entra aca es porque es un numero en otra base"""
         return [convert_numbers_to_base_ten(indice), 'Lit']
 
     else:
@@ -464,121 +439,93 @@ def generar_codigo(valor, instruccion):
         primeros16 = f'{int(valor):016b}'
         siguientes20 = (20-len(opcodes[instruccion])) * '0' + opcodes[instruccion]
         respuesta = primeros16 + siguientes20
+
         return respuesta
-    else:
-        print(instruccion, opcodes)
-        raise KeyError("OPCODE NO ENCONTRADO ERROR", instruccion)
+
+    print(instruccion, opcodes)
+    raise KeyError("OPCODE NO ENCONTRADO ERROR", instruccion)
 
 
 def codigo_de_maquina(instruccion,assambler_inst):
     palabra_2 = None
     valor_2 = None
+
     if instruccion.inst == "NOP":
         instruccion_string = "NOP"
-        resultado = (36 - len(opcodes[instruccion_string])) * '0' + opcodes[instruccion_string]
+        resultado = (36 - len(opcodes[instruccion_string])) * \
+                    '0' + opcodes[instruccion_string]
+
         return resultado
+
     valor_1, palabra_1 = procesar_indice(instruccion.in_1)
+
     if instruccion.in_2 != '':
         valor_2, palabra_2 = procesar_indice(instruccion.in_2)
+
     if palabra_1 and palabra_2:
-        instruccion_string = '{} {}, {}'.format(assambler_inst,palabra_1, palabra_2)
+
+        instruccion_string = f'{assambler_inst} {palabra_1}, {palabra_2}'
+
         if valor_1 is not None:
             resultado = generar_codigo(valor_1, instruccion_string)
+
             return resultado
+
         elif valor_2 is not None:
             resultado = generar_codigo(valor_2, instruccion_string)
+
             return resultado
+
         elif palabra_1 and palabra_2:
             if instruccion_string not in opcodes.keys():
                 print(opcodes)
+
                 raise KeyError("1NO está en el opcode", instruccion_string)
-            resultado = (36 - len(opcodes[instruccion_string])) * '0' + opcodes[instruccion_string]
+
+            resultado = (36 - len(opcodes[instruccion_string])) * \
+                        '0' + opcodes[instruccion_string]
+
             return resultado
+
     elif palabra_1:
         instruccion_string = '{} {}'.format(assambler_inst,palabra_1)
+
         if valor_1 is not None:
             resultado = generar_codigo(valor_1, instruccion_string)
+
             return resultado
+
         else:
             raise KeyError("2No está en el opcode", instruccion_string)
+
     else:
         raise KeyError("Instruccion no permitida", instruccion)
 
+
 for key in label_pairs.keys():
     print('{} {}'.format(key, bin(int(label_pairs[key]))))
-for index,d in enumerate(machiny_stuff):
-    resp = codigo_de_maquina(d,d.inst)
+
+for index, d in enumerate(machiny_stuff):
+    resp = codigo_de_maquina(d, d.inst)
     print(resp[:16], ' ', resp[16:], ' ', d.inst,d.in_1, d.in_2)
-
-
-
-    #
-    # if d.inst == "NOP":
-    #     d.string = "NOP"
-    #     direccion = int(0)
-    #
-    # elif _reg_1 and _reg_2:
-    #     d.string = "{} {}, {}".format(d.inst, d.in_1, d.in_2)
-    #     direccion = int(0)
-    #
-    # elif _reg_1 and _lit_2:
-    #     d.string = "{} {}, {}".format(d.inst, d.in_1, "Lit")
-    #     direccion = int(d.in_2)
-    #
-    # elif _reg_1 and (_dir_2 or _dir_2_num):
-    #     d.string = "{} {}, {}".format(d.inst, d.in_1, "(Dir)")
-    #     direccion = d.in_2.replace('(', '').replace(')', '')
-    #     if _dir_2_num:
-    #         direccion = int(d.in_2.replace('(', '').replace(')',
-    #                                                         '').replace(' ', ''))
-    #     else:
-    #         direccion = label_pairs[direccion]
-    #
-    # elif (_dir_1 or _dir_1_num) and _reg_2:
-    #     d.string = "{} {}, {}".format(d.inst, "(Dir)", d.in_2)
-    #     direccion = d.in_1.replace('(', '').replace(')', '')
-    #     if _dir_1_num:
-    #         direccion = int(d.in_1.replace('(', '').replace(')',
-    #                                                         '').replace(' ', ''))
-    #     else:
-    #         direccion = label_pairs[direccion]
-    # elif (_dir_1 or _dir_1_num) and not d.in_2:
-    #     if "(" in d.in_1:
-    #         d.string = "{} {}".format(d.inst, "(Dir)")
-    #         direccion = d.in_1.replace('(', '').replace(')', '')
-    #         if _dir_1_num:
-    #             direccion = int(d.in_1.replace('(', '').replace(')',
-    #                                                             '').replace(' ', ''))
-    #         else:
-    #             direccion = label_pairs[direccion]
-    #
-    #     else:
-    #         d.string = "{} {}".format(d.inst, "Ins")
-    #         direccion = d.in_1.replace('(', '').replace(')', '')
-    #         direccion = label_pairs[direccion]
-    # elif _reg_1 and not d.in_2:
-    #     d.string = "{} {}".format(d.inst, d.in_1)
-    #     direccion = int(0)
-    # lit_dir = f'{int(direccion):016b}'
-    # if d.string in opcodes.keys():
-    #     instrucciones = lit_dir + \
-    #         (20-len(opcodes[d.string])) * '0' + opcodes[d.string]
-    #     total_instrucciones.append(instrucciones)
-    #
-    # else:
-    #     print("OPCODE NO ENCONTRADO ERROR", d)
-    #
-    # total_instrucciones_string.append(d.string)
 
 list_data_inst = []
 list_data_str = []
+
+# ============================================================
+
+# data: Asignación de datos (con labels)
+
+
+# ============================================================
+
 for d in data:
     # Primera op
     string = "MOV B, Lit".format(d.value)
     try:
         valor_literal = int(d.value)
 
-    except:
+    except Exception:
         if d.value[-1] == 'd':
 
             valor_literal = dec2decimal(d.value[-1])
@@ -613,9 +560,11 @@ for d in data:
         print("OPCODE NO ENCONTRADO ERROR", d)
 instrucciones_finales = [*list_data_inst, *total_instrucciones]
 instrucciones_finales_string = [*list_data_str, *total_instrucciones_string]
-"""
-Acá se escriben las instrucciones
-"""
+
+# ============================================================
+
+
+"""Acá se escriben las instrucciones"""
 
 
 def conver_hex(binario_string):
