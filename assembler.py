@@ -537,7 +537,7 @@ for index, d in enumerate(machiny_stuff):
             valor = f'{int(d.in_2):016b}'
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
             move_a_lit = valor + opcodes["MOV A, Lit"].rjust(20, "0")
-            move_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20, "0")
+            move_b_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20, "0")
             pop_a = opcodes["POP A"].rjust(36, '0')
             pop_a_2 = opcodes["POP A2"].rjust(36, '0')
             total_instrucciones.append(push_a)
