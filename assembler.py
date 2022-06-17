@@ -694,9 +694,11 @@ def conver_hex(binario_string):
     #   hex(int(binario_string, 2))), type(int(hex(int(binario_string, 2)))))
     return int(binario_string, 2)
 
-
-#rom_programmer = Basys3()
-# rom_programmer.begin(port_number=1)
+try:
+    rom_programmer = Basys3()
+    rom_programmer.begin(port_number=1)
+except Exception:
+    print("Algo pasó con la placa o no está conectada UwU")
 with open("ROM.txt", 'w') as f:
 
     for index, inst in enumerate(instrucciones_finales):
@@ -706,28 +708,19 @@ with open("ROM.txt", 'w') as f:
         lista_hex = [conver_hex(inst[:4]), conver_hex(inst[4:12]),
                      conver_hex(inst[12:20]), conver_hex(inst[20:28]), conver_hex(inst[28:36])]
         lista_hex = bytearray(lista_hex)
-        #rom_programmer.write(index, bytearray(lista_hex))
+        try:
+            rom_programmer.write(index, bytearray(lista_hex))
+        except Exception:
+            print("Algo pasó con la placa o no está conectada UwU")
         f.write('\n')
-
-# rom_programmer.end()
-
+try:
+    rom_programmer.end()
+except Exception:
+    print("Algo pasó con la placa o no está conectada UwU")
 
 print(" \033[92;1m~~~~~~~~~~~ DATA ~~~~~~~~~~~\033[0m ")
-jump_count = 12
-for i in convert_data_entries_to_inst(data):
-    print(i[:16], i[16:])
-    jump_count -= 1
-
-    if not jump_count:
-        print(jump_count)
+for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
 print(" \033[92;1m~~~~~~~~~~~ CODE ~~~~~~~~~~~\033[0m ")
-jump_count = 12
-for i in total_instrucciones:
-    print(i[:16], i[16:])
-
-    jump_count -= 1
-
-    if not jump_count:
-        print(jump_count)
+for i in total_instrucciones: print(i[:16], i[16:])
 print(" \033[92;1m~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m ")
 print('FIN'); print('😊')
