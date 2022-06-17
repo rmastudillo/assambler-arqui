@@ -507,7 +507,7 @@ for index, d in enumerate(machiny_stuff):
             valor = f'{int(d.in_2):016b}'
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
             move_a_lit = valor + opcodes["MOV A, Lit"].rjust(20, "0")
-            move_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20,"0")
+            move_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20, "0")
 
             pass
 
@@ -568,60 +568,10 @@ instrucciones_finales = [
 
 
 # for i in instrucciones_finales: print(i[:16], i[16:])
-print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
-for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
-print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
-print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)  # TODO: sacar...
-
-# # ============================================================
-#
-# list_data_inst = []
-# list_data_str = []
-#
-# for d in data:
-#     # Primera op
-#     string = "MOV B, Lit"
-#     try:
-#         valor_literal = int(d.value)
-#
-#     except Exception:
-#         if d.value[-1] == 'd':
-#
-#             valor_literal = dec2decimal(d.value[-1])
-#         elif d.value[-1] == 'b':
-#
-#             valor_literal = bin2decimal(d.value[-1])
-#         elif d.value[-1] == 'h':
-#
-#             valor_literal = hex2decimal(d.value[-1])
-#         else:
-#             raise ValueError
-#
-# # RICHIIIIIII
-#                                  # CUÁNTO VALE string
-#     lit_dir = f'{int(valor_literal):016b}'
-#     if string in opcodes.keys():
-#         instrucciones = lit_dir + \
-#             (20-len(opcodes[string]))*'0'+opcodes[string]
-#         list_data_inst.append(instrucciones)
-#     else:
-#         print("OPCODE NO ENCONTRADO ERROR", d)
-#     # Segunda op
-#     string = "MOV (Dir), B"
-#     list_data_str.append(string)
-#     direccion = d.rom_dir
-#
-#     lit_dir = f'{int(direccion):016b}'
-#     if string in opcodes.keys():
-#         instrucciones = lit_dir + \
-#             (20-len(opcodes[string]))*'0'+opcodes[string]
-#         list_data_inst.append(instrucciones)
-#     else:
-#         print("OPCODE NO ENCONTRADO ERROR", d)
-# instrucciones_finales = [*list_data_inst, *total_instrucciones]
-# instrucciones_finales_string = [*list_data_str, *total_instrucciones_string]
-
-# ============================================================
+# print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
+# for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
+# print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
+# print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)  # TODO: sacar...
 
 """Acá se escriben las instrucciones"""
 
