@@ -6,16 +6,16 @@ import os
 
 
 # Ctes.
-TOKENS_COMMENTS = ['//', ';']
-# TOKENS_COMMENTS = ['//']
-TOKENS_STRINGS = ['"', "'"]
+TOKENS_COMMENTS = ('//', ';')
+# TOKENS_COMMENTS = ('//', )
+TOKENS_STRINGS = ('"', "'")
 
 # Asignar las funciones si se agregan nuevos
-TOKENS_BASES = ['d', 'b', 'h']
+TOKENS_BASES = ('d', 'b', 'h')
 TOKEN_ARRAY_SEPARATOR = ','
 TOKEN_LABEL = ':'
 TOKEN_INPUTS_SEPARATOR = ','
-REGISTERS = ['A', 'B']
+REGISTERS = ('A', 'B')
 CASOS_ESPECIALES = ('SUB B, Lit',
                     'INC A', 'INC B', 'INC (Dir)', 'INC (B)',
                     'DEC A', 'RET', 'PUSH A', 'PUSH B',
@@ -426,9 +426,39 @@ def procesar_indice(indice: int or str):
 
 
 def generar_codigo(valor, instruccion):
+    # ============================ MARCADOR ============================ ====================================================================================================================================================================================================================================================================================================================
+    # FIXME: PLACE HOLDER, ARREGLAR
+    # TODO: PLACE HOLDER, ARREGLAR
+    # BUG: PLACE HOLDER, ARREGLAR
+    # XXX: PLACE HOLDER, ARREGLAR
+    # NOTE: PLACE HOLDER, ARREGLAR
+    # WARN: PLACE HOLDER, ARREGLAR
+    """
+    PLACE HOLDER, ARREGLAR
+    """
+    if "Ins" in instruccion:
+        if "JMP" in 
+
     if "MOV A, Ins" == instruccion:
-        print(valor)
-        breakpoint()
+        instruccion = "MOV A, Dir"
+
+    elif "MOV B, Ins" == instruccion:
+        instruccion = "MOV B, Dir"
+
+    elif "ADD A, Ins" == instruccion:
+        instruccion = "ADD A, Dir"
+
+    elif "ADD B, Ins" == instruccion:
+        instruccion = "ADD B, Dir"
+
+    elif "SUB A, Ins" == instruccion:
+        instruccion = "SUB A, Dir"
+
+    elif "SUB B, Ins" == instruccion:
+        instruccion = "SUB B, Dir"
+
+
+
     if instruccion in opcodes.keys():
         # primeros16 = f'{int(valor):016b}'
         # siguientes20 = (20 - len(opcodes[instruccion])) * '0' + \
