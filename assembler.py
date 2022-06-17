@@ -22,6 +22,18 @@ CASOS_ESPECIALES = ('SUB B, Lit',
                     'POP A', 'POP B','MOV (Dir), Lit',
                     'MOV (B), Lit',
                     'ADD B, (Dir)')
+
+jumps = ("JMP",
+         "JEQ", "JNE",
+         "JGT", "JLT",
+         "JGE", "JLE",
+         "JCR",
+         "CALL")
+
+not_jumps = ("MOV", "RET", "POP", "PUSH", "ADD", "SUB",
+             "AND", "OR", "XOR", "NOT", "SHL", "SHR", "INC",
+             "DEC", "CMP", "PUSH", "NOP")
+
 # Argumentos --> Archivo de entrada
 input_file = str(argv[1])
 # Instrucciones
@@ -434,16 +446,6 @@ def generar_codigo(valor, instruccion):
     # NOTE: PLACE HOLDER, ARREGLAR
     # WARN: PLACE HOLDER, ARREGLAR
 
-    jumps = ("JMP",
-             "JEQ", "JNE",
-             "JGT", "JLT",
-             "JGE", "JLE",
-             "JCR",
-             "CALL")
-
-    not_jumps = ("MOV", "RET", "POP", "PUSH", "ADD", "SUB",
-                 "AND", "OR", "XOR", "NOT", "SHL", "SHR", "INC",
-                 "DEC", "CMP", "PUSH", "NOP")
     """
     PLACE HOLDER, ARREGLAR
     """
@@ -546,17 +548,20 @@ def codigo_de_maquina(instruccion,assambler_inst):
             #             '0' + opcodes[instruccion_string]
             resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
 
-            return resultado,instruccion_string
+            return resultado, instruccion_string
 
     elif palabra_1:
-        instruccion_string = '{} {}'.format(assambler_inst,palabra_1)
+        instruccion_string = '{} {}'.format(assambler_inst, palabra_1)
 
         if valor_1 is not None:
             resultado = generar_codigo(valor_1, instruccion_string)
 
-            return resultado,instruccion_string
+            return resultado, instruccion_string
+        elif palabra_1 in REGISTERS:
+            return opcodes[instruccion_string].rjust(36, '0'), instruccion_string
 
         else:
+
             raise KeyError(use_bloody_red_color("2No está en el opcode"),
                            use_bloody_red_color(instruccion_string))
 
