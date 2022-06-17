@@ -515,7 +515,7 @@ for index, d in enumerate(machiny_stuff):
         elif assembly_inst_ == "POP B":
             pop_a_2 = '00010100000000011010'.rjust(36, '0')
         elif assembly_inst_ == "RET":
-            ret_2 = 
+            ret_2 = '00000100000000000000'
 
 
 
