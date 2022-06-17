@@ -493,8 +493,8 @@ for index, d in enumerate(machiny_stuff):
             move_a_lit = (36 - (len(move_a_lit)))*'0' + move_a_lit
             add_a_dir = (20 - len(opcodes["ADD A, (Dir)"])) * '0' + opcodes["ADD A, (Dir)"]
             add_a_dir = resp[:16] + add_a_dir
-            pop_a = opcodes["POP A"].rjust(36,'0')
-            pop_a_2 = '00010100000000011100'.rjust(36,'0')
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = '00010100000000011100'.rjust(36, '0')
             print(push_a)
             print(move_a_lit)
             print(add_a_dir)
@@ -508,8 +508,14 @@ for index, d in enumerate(machiny_stuff):
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
             move_a_lit = valor + opcodes["MOV A, Lit"].rjust(20, "0")
             move_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20, "0")
-
-            pass
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = '00010100000000011100'.rjust(36, '0')
+        elif assembly_inst_ == "POP A":
+            pop_a_2 = '00010100000000011100'.rjust(36, '0')
+        elif assembly_inst_ == "POP B":
+            pop_a_2 = '00010100000000011010'.rjust(36, '0')
+        elif assembly_inst_ == "RET":
+            ret_2 = 
 
 
 
