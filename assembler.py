@@ -436,13 +436,18 @@ def procesar_indice(indice: int or str):
 
         # 10b -> 2
         if t_indice[-1] in 'hbd':
-            num_index = convert_numbers_to_base_ten(t_indice)
+            if t_indice in label_pairs.keys():
+                return [label_pairs[t_indice], '(Dir)']
+            else:
+                t_indice = convert_numbers_to_base_ten(t_indice)
 
         if t_indice in label_pairs.keys():
-            return [t_indice, '(Dir)']
+            return [label_pairs[t_indice], '(Dir)']
 
         elif t_indice.isnumeric():
             return [t_indice, '(Lit)']
+        elif t_indice in ('A', 'B'):
+            return [None, indice]
 
     elif indice[-1] in ('d', 'b', 'h'):
         """
@@ -464,23 +469,39 @@ def generar_codigo(valor, instruccion):
         raise KeyError("OPCODE NO ENCONTRADO ERROR", instruccion)
 
 
-def MOV(instruccion):
+def codigo_de_maquina(instruccion,assambler_inst):
+    palabra_2 = None
+    valor_2 = None
+    if instruccion.inst == "NOP":
+        instruccion_string = "NOP"
+        resultado = (20 - len(opcodes[instruccion.inst])) * '0' + opcodes[instruccion.inst]
+        return resultado
     valor_1, palabra_1 = procesar_indice(instruccion.in_1)
-    valor_2, palabra_2 = procesar_indice(instruccion.in_2)
-    breakpoint()
+    if instruccion.in_2 != '':
+        valor_2, palabra_2 = procesar_indice(instruccion.in_2)
     if palabra_1 and palabra_2:
-        instruccion_string = 'MOV {}, {}'.format(palabra_1, palabra_2)
-        resultado = ''
-        if valor_1:
+        instruccion_string = '{} {}, {}'.format(assambler_inst,palabra_1, palabra_2)
+        if valor_1 is not None:
             resultado = generar_codigo(valor_1, instruccion_string)
             return resultado
-        elif valor_2:
+        elif valor_2 is not None:
             resultado = generar_codigo(valor_2, instruccion_string)
             return resultado
-
+        elif palabra_1 and palabra_2:
+            if instruccion_string not in opcodes.keys():
+                print(opcodes)
+                raise KeyError("1NO está en el opcode", instruccion_string)
+            resultado = (20 - len(opcodes[instruccion_string])) * '0' + opcodes[instruccion_string]
+            return resultado
+    elif palabra_1:
+        instruccion_string = '{} {}'.format(assambler_inst,palabra_1)
+        if valor_1 is not None:
+            resultado = generar_codigo(valor_1, instruccion_string)
+            return resultado
+        else:
+            raise KeyError("2No está en el opcode", instruccion_string)
     else:
         raise KeyError("Instruccion no permitida", instruccion)
-    return resultado
 
 
 for d in machiny_stuff:
@@ -500,9 +521,10 @@ for d in machiny_stuff:
     _lit_2 = d.in_2.isdigit()
     lit_dir = ""
     direccion = 0
-    if d.inst == "MOV":
+    if d.inst == "NOP":
         print("AAAAAAAAAAAA")
-        resp = MOV(d)
+        resp = codigo_de_maquina(d,d.inst)
+        print(resp)
         breakpoint()
 
     if d.inst == "NOP":

@@ -10,4 +10,5 @@ usec 0
 lcd  0
 
 CODE:
-MOV B, (led)
+
+NOP
