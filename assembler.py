@@ -8,6 +8,7 @@ import os
 
 # Ctes.
 TOKENS_COMMENTS = ['//', ';']
+# TOKENS_COMMENTS = ['//']
 TOKENS_STRINGS = ['"', "'"]
 
 # Asignar las funciones si se agregan nuevos
@@ -16,7 +17,12 @@ TOKEN_ARRAY_SEPARATOR = ','
 TOKEN_LABEL = ':'
 TOKEN_INPUTS_SEPARATOR = ','
 REGISTERS = ['A', 'B']
-CASOS_ESPECIALES = ("SUB B, Lit","INC A","INC B","INC (Dir)","INC (B)","DEC A", "RET",)
+CASOS_ESPECIALES = ('SUB B, Lit',
+                    'INC A', 'INC B', 'INC (Dir)', 'INC (B)',
+                    'DEC A',
+                    'RET',
+                    'PUSH A', 'PUSH B',
+                    'POP A', 'POP B')
 # Argumentos --> Archivo de entrada
 input_file = str(argv[1])
 # Instrucciones
@@ -392,7 +398,7 @@ def procesar_indice(indice: int or str):
     # [Intr, indice, indice]
     indice = remove_strs(indice, ' ', '\t', '\n')
 
-    if indice in ('A', 'B'):
+    if indice in REGISTERS:
         # [, 'A||B']
         return [None, indice]
 
@@ -421,10 +427,10 @@ def procesar_indice(indice: int or str):
         elif t_indice.isnumeric():
             return [t_indice, '(Dir)']
 
-        elif t_indice in ('A', 'B'):
+        elif t_indice in REGISTERS:
             return [None, indice]
 
-    elif indice[-1] in ('d', 'b', 'h'):
+    elif indice[-1] in TOKENS_BASES:
         """Si entra aca es porque es un numero en otra base"""
         return [convert_numbers_to_base_ten(indice), 'Lit']
 
@@ -435,13 +441,14 @@ def procesar_indice(indice: int or str):
 def generar_codigo(valor, instruccion):
     if instruccion in opcodes.keys():
         primeros16 = f'{int(valor):016b}'
-        siguientes20 = (20 - len(opcodes[instruccion])) * \
-                       '0' + opcodes[instruccion]
+        siguientes20 = (20 - len(opcodes[instruccion])) * '0' + \
+                       opcodes[instruccion]
         respuesta = primeros16 + siguientes20
 
         return respuesta
 
     print(instruccion, opcodes)
+
     raise KeyError("OPCODE NO ENCONTRADO ERROR", instruccion)
 
 
@@ -451,10 +458,10 @@ def codigo_de_maquina(instruccion,assambler_inst):
 
     if instruccion.inst == "NOP":
         instruccion_string = "NOP"
-        resultado = (36 - len(opcodes[instruccion_string])) * \
-                    '0' + opcodes[instruccion_string]
+        resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
+                    opcodes[instruccion_string]
 
-        return resultado
+        return resultado, instruccion_string
 
     valor_1, palabra_1 = procesar_indice(instruccion.in_1)
 
@@ -468,12 +475,12 @@ def codigo_de_maquina(instruccion,assambler_inst):
         if valor_1 is not None:
             resultado = generar_codigo(valor_1, instruccion_string)
 
-            return resultado
+            return resultado,instruccion_string
 
         elif valor_2 is not None:
             resultado = generar_codigo(valor_2, instruccion_string)
 
-            return resultado
+            return resultado,instruccion_string
 
         elif palabra_1 and palabra_2:
             if instruccion_string not in opcodes.keys():
@@ -484,7 +491,7 @@ def codigo_de_maquina(instruccion,assambler_inst):
             resultado = (36 - len(opcodes[instruccion_string])) * \
                         '0' + opcodes[instruccion_string]
 
-            return resultado
+            return resultado,instruccion_string
 
     elif palabra_1:
         instruccion_string = '{} {}'.format(assambler_inst,palabra_1)
@@ -492,7 +499,7 @@ def codigo_de_maquina(instruccion,assambler_inst):
         if valor_1 is not None:
             resultado = generar_codigo(valor_1, instruccion_string)
 
-            return resultado
+            return resultado,instruccion_string
 
         else:
             raise KeyError("2No está en el opcode", instruccion_string)
@@ -505,32 +512,83 @@ for key in label_pairs.keys():
     print('{} {}'.format(key, bin(int(label_pairs[key]))))
 
 for index, d in enumerate(machiny_stuff):
-    resp = codigo_de_maquina(d, d.inst)
-    print(resp[:16], ' ', resp[16:], ' ', d.inst,d.in_1, d.in_2)
+
+    resp, assembly_inst_ = codigo_de_maquina(d, d.inst)
+    print(resp[:16], ' ', resp[16:], ' ', assembly_inst_,
+          '|||', d.in_1, d.in_2)
+    if assembly_inst_ in CASOS_ESPECIALES:
+        if assembly_inst_ == "INC (Dir)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            move_a_lit = '1' + opcodes["MOV A, Lit"]
+            move_a_lit = (36 - (len(move_a_lit)))*'0' + move_a_lit
+            add_a_dir = (20 - len(opcodes["ADD A, (Dir)"])) * '0' + opcodes["ADD A, (Dir)"]
+            add_a_dir = resp[:16] + add_a_dir
+            pop_a = opcodes["POP A"].rjust(36,'0')
+            pop_a_2 = '00010100000000011100'.rjust(36,'0')
+            print(push_a)
+            print(move_a_lit)
+            print(add_a_dir)
+            print(pop_a)
+            print(pop_a_2)
+        elif assembly_inst_ == "SUB B, Lit":
+            resp_2 = opcodes["NOT B"].rjust(36, "0")
+
+
+
+
+# ============================================================
+
+def convert_str_num_to_int_base_ten(as_is_data_num: str or int) -> int:
+    n_val = as_is_data_num
+
+    if str(as_is_data_num)[-1] in TOKENS_BASES:
+        n_val = convert_numbers_to_base_ten(n_val)
+
+    n_val = int(n_val)
+
+    return n_val
+
+
+def parse_data_as_move_instr(val_as_bin_literal):
+    for instruction in ('MOV B, Lit', 'MOV (Dir), B'):
+        instruct = f"{val_as_bin_literal} " \
+                   f"{str(opcodes[instruction]).rjust(20, '0')}"
+
+        yield instruct
+
+
+def convert_data_entries_to_inst(data_entries_lst: list or tuple) -> list:
+    # data -> list
+    # data[0]: Asignación de datos (con labels)
+    # data[0] -> DataEntry
+
+    # DataEntry.rom_dir: int
+    # DataEntry.label: int
+    # DataEntry.value: int
+    list_data_inst = list()
+
+    for d_entry in data:
+        numeric_val = convert_str_num_to_int_base_ten(d_entry.value)
+        val_as_binary = f'{int(numeric_val):016b}'
+        dir_as_binary = f'{int(d_entry.rom_dir):016b}'
+
+        list_data_inst.append(instrucciones)
+
+    ''''''
+    return list()  # TODO
+
+
+print(type(data))  # TODO: sacar...
+print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)  # TODO: sacar...
+
+# ============================================================
 
 list_data_inst = []
 list_data_str = []
 
-# ============================================================
-
-
-def convert_data_entries_to_inst(data_entries_lst: list or tuple) -> list:
-    # data: Asignación de datos (con labels)
-    # data -> DataEntry
-
-    for d_entry in data:
-        pass
-
-    return list()
-
-
-print(type(data)); print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)
-
-# ============================================================
-
 for d in data:
     # Primera op
-    string = "MOV B, Lit {}".format(d.value)
+    string = "MOV B, Lit"
     try:
         valor_literal = int(d.value)
 
@@ -547,7 +605,8 @@ for d in data:
         else:
             raise ValueError
 
-    list_data_str.append(string)
+# RICHIIIIIII
+                                 # CUÁNTO VALE string
     lit_dir = f'{int(valor_literal):016b}'
     if string in opcodes.keys():
         instrucciones = lit_dir + \
@@ -571,7 +630,6 @@ instrucciones_finales = [*list_data_inst, *total_instrucciones]
 instrucciones_finales_string = [*list_data_str, *total_instrucciones_string]
 
 # ============================================================
-
 
 """Acá se escriben las instrucciones"""
 

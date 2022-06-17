@@ -1,4 +1,2 @@
-MOV B, Lit
 MOV (Dir), B
-MOV B, Lit
 MOV (Dir), B
