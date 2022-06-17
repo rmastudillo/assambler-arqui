@@ -1,8 +1,8 @@
 DATA:
 
- nulo 238
+ None 238
  i 10
 
 CODE:
 
-MOV (nulo), 17
+MOV (None), 17

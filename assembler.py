@@ -190,37 +190,6 @@ def process_arrays(text: str) -> list:
     return thingy
 
 
-# def process_bases(text: str) -> str:
-#     """Esto esta buggueado"""
-#     # BUG: Variables que incluyen
-#     regex_filter = "\s--[0-9a-fA-F]+[--]?\s"
-#
-#     ugly_stuff = re.findall(regex_filter, text)
-#     print(text)
-#     while ugly_stuff:
-#
-#         ugly_stuff = str(ugly_stuff[0])
-#
-#         if ugly_stuff[-1] == 'd':
-#             nice_stuff = dec2decimal(ugly_stuff)
-#         elif ugly_stuff[-1] == 'b':
-#
-#             nice_stuff = bin2decimal(ugly_stuff)
-#         elif ugly_stuff[-1] == 'h':
-#
-#             nice_stuff = hex2decimal(ugly_stuff)
-#         else:
-#             raise ValueError
-#
-#         parts = text.split(ugly_stuff)
-#         text = parts[0] + str(nice_stuff)
-#         text += parts[1] if len(parts) > 1 else ''
-#
-#         ugly_stuff = re.findall(regex_filter, text)
-#
-#     return text
-
-
 # ----- Direcciones de memoria y cosas feas realcionadas -----
 # Asigna direcciones de memoria a las instrucciones
 # instr -> (dir, instr)
@@ -512,7 +481,6 @@ for key in label_pairs.keys():
     print('{} {}'.format(key, bin(int(label_pairs[key]))))
 
 for index, d in enumerate(machiny_stuff):
-
     resp, assembly_inst_ = codigo_de_maquina(d, d.inst)
     print(resp[:16], ' ', resp[16:], ' ', assembly_inst_,
           '|||', d.in_1, d.in_2)
@@ -533,6 +501,8 @@ for index, d in enumerate(machiny_stuff):
         elif assembly_inst_ == "SUB B, Lit":
             resp_2 = opcodes["NOT B"].rjust(36, "0")
         elif assembly_inst_ == "MOV (Dir), Lit":
+            direccion = f'{int(label_pairs[d.in_1[1:-1]]):016b}'
+            valor =  f'{int(d.in_2):016b}'
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
             move_a_lit = resp[:16] + opcodes["MOV A, Lit"]
             pass
@@ -582,6 +552,7 @@ def convert_data_entries_to_inst(data_entries_lst: list or tuple) -> list:
         bin_result_1 = f"{val_as_binary}{str(opcodes[intr_1]).rjust(20, '0')}"
         bin_result_2 = f"{dir_as_binary}{str(opcodes[intr_2]).rjust(20, '0')}"
 
+        list_data_inst.append(instrucciones)
         list_data_inst.append(instrucciones)
 
     ''''''
@@ -671,8 +642,5 @@ Esto es solo para debug
 """
 
 
-with open("ROM_instruccion.txt", 'w') as f:
-    for inst in instrucciones_finales_string:
-        f.write(inst)
-        f.write('\n')
+
 print("FIN")
