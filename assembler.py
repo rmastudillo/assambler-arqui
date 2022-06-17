@@ -60,8 +60,8 @@ class Instruction:
         return (f"{self.rom_dir},{self.inst},{self.label}"
                 f" {self.in_1}, {self.in_2}")
 
-# Datos
 
+# Datos
 class DataEntry:
     def __init__(self, rom_dir, label, value):
         self.rom_dir = rom_dir
@@ -445,7 +445,7 @@ def procesar_indice(indice: int or str):
             return [label_pairs[t_indice], '(Dir)']
 
         elif t_indice.isnumeric():
-            return [t_indice, '(Lit)']
+            return [t_indice, '(Dir)']
         elif t_indice in ('A', 'B'):
             return [None, indice]
 
@@ -466,6 +466,7 @@ def generar_codigo(valor, instruccion):
         respuesta = primeros16 + siguientes20
         return respuesta
     else:
+        print(instruccion, opcodes)
         raise KeyError("OPCODE NO ENCONTRADO ERROR", instruccion)
 
 
@@ -474,7 +475,7 @@ def codigo_de_maquina(instruccion,assambler_inst):
     valor_2 = None
     if instruccion.inst == "NOP":
         instruccion_string = "NOP"
-        resultado = (20 - len(opcodes[instruccion.inst])) * '0' + opcodes[instruccion.inst]
+        resultado = (36 - len(opcodes[instruccion_string])) * '0' + opcodes[instruccion_string]
         return resultado
     valor_1, palabra_1 = procesar_indice(instruccion.in_1)
     if instruccion.in_2 != '':
@@ -491,7 +492,7 @@ def codigo_de_maquina(instruccion,assambler_inst):
             if instruccion_string not in opcodes.keys():
                 print(opcodes)
                 raise KeyError("1NO está en el opcode", instruccion_string)
-            resultado = (20 - len(opcodes[instruccion_string])) * '0' + opcodes[instruccion_string]
+            resultado = (36 - len(opcodes[instruccion_string])) * '0' + opcodes[instruccion_string]
             return resultado
     elif palabra_1:
         instruccion_string = '{} {}'.format(assambler_inst,palabra_1)
@@ -503,86 +504,71 @@ def codigo_de_maquina(instruccion,assambler_inst):
     else:
         raise KeyError("Instruccion no permitida", instruccion)
 
+for key in label_pairs.keys():
+    print('{} {}'.format(key, bin(int(label_pairs[key]))))
+for index,d in enumerate(machiny_stuff):
+    resp = codigo_de_maquina(d,d.inst)
+    print(resp[:16], ' ', resp[16:], ' ', d.inst,d.in_1, d.in_2)
 
-for d in machiny_stuff:
-    print(d)
-    _dir_1 = (d.in_1.replace('(', '').replace(')', '')
-              in label_pairs.keys())
-    _dir_1_num = (d.in_1.replace('(', '').replace(')',
-                  '').replace(' ', '').isdigit())
 
-    _dir_2 = (d.in_2.replace('(', '').replace(')', '')
-              in label_pairs.keys())
-    _dir_2_num = (d.in_2.replace('(', '').replace(')',
-                  '').replace(' ', '').isdigit())
-    _reg_1 = (("A" in d.in_1) or ("B" in d.in_1))
-    _reg_2 = (("A" in d.in_2) or ("B" in d.in_2))
-    _lit_1 = d.in_1.isdigit()
-    _lit_2 = d.in_2.isdigit()
-    lit_dir = ""
-    direccion = 0
-    if d.inst == "NOP":
-        print("AAAAAAAAAAAA")
-        resp = codigo_de_maquina(d,d.inst)
-        print(resp)
-        breakpoint()
 
-    if d.inst == "NOP":
-        d.string = "NOP"
-        direccion = int(0)
-
-    elif _reg_1 and _reg_2:
-        d.string = "{} {}, {}".format(d.inst, d.in_1, d.in_2)
-        direccion = int(0)
-
-    elif _reg_1 and _lit_2:
-        d.string = "{} {}, {}".format(d.inst, d.in_1, "Lit")
-        direccion = int(d.in_2)
-
-    elif _reg_1 and (_dir_2 or _dir_2_num):
-        d.string = "{} {}, {}".format(d.inst, d.in_1, "(Dir)")
-        direccion = d.in_2.replace('(', '').replace(')', '')
-        if _dir_2_num:
-            direccion = int(d.in_2.replace('(', '').replace(')',
-                                                            '').replace(' ', ''))
-        else:
-            direccion = label_pairs[direccion]
-
-    elif (_dir_1 or _dir_1_num) and _reg_2:
-        d.string = "{} {}, {}".format(d.inst, "(Dir)", d.in_2)
-        direccion = d.in_1.replace('(', '').replace(')', '')
-        if _dir_1_num:
-            direccion = int(d.in_1.replace('(', '').replace(')',
-                                                            '').replace(' ', ''))
-        else:
-            direccion = label_pairs[direccion]
-    elif (_dir_1 or _dir_1_num) and not d.in_2:
-        if "(" in d.in_1:
-            d.string = "{} {}".format(d.inst, "(Dir)")
-            direccion = d.in_1.replace('(', '').replace(')', '')
-            if _dir_1_num:
-                direccion = int(d.in_1.replace('(', '').replace(')',
-                                                                '').replace(' ', ''))
-            else:
-                direccion = label_pairs[direccion]
-
-        else:
-            d.string = "{} {}".format(d.inst, "Ins")
-            direccion = d.in_1.replace('(', '').replace(')', '')
-            direccion = label_pairs[direccion]
-    elif _reg_1 and not d.in_2:
-        d.string = "{} {}".format(d.inst, d.in_1)
-        direccion = int(0)
-    lit_dir = f'{int(direccion):016b}'
-    if d.string in opcodes.keys():
-        instrucciones = lit_dir + \
-            (20-len(opcodes[d.string])) * '0' + opcodes[d.string]
-        total_instrucciones.append(instrucciones)
-
-    else:
-        print("OPCODE NO ENCONTRADO ERROR", d)
-
-    total_instrucciones_string.append(d.string)
+    #
+    # if d.inst == "NOP":
+    #     d.string = "NOP"
+    #     direccion = int(0)
+    #
+    # elif _reg_1 and _reg_2:
+    #     d.string = "{} {}, {}".format(d.inst, d.in_1, d.in_2)
+    #     direccion = int(0)
+    #
+    # elif _reg_1 and _lit_2:
+    #     d.string = "{} {}, {}".format(d.inst, d.in_1, "Lit")
+    #     direccion = int(d.in_2)
+    #
+    # elif _reg_1 and (_dir_2 or _dir_2_num):
+    #     d.string = "{} {}, {}".format(d.inst, d.in_1, "(Dir)")
+    #     direccion = d.in_2.replace('(', '').replace(')', '')
+    #     if _dir_2_num:
+    #         direccion = int(d.in_2.replace('(', '').replace(')',
+    #                                                         '').replace(' ', ''))
+    #     else:
+    #         direccion = label_pairs[direccion]
+    #
+    # elif (_dir_1 or _dir_1_num) and _reg_2:
+    #     d.string = "{} {}, {}".format(d.inst, "(Dir)", d.in_2)
+    #     direccion = d.in_1.replace('(', '').replace(')', '')
+    #     if _dir_1_num:
+    #         direccion = int(d.in_1.replace('(', '').replace(')',
+    #                                                         '').replace(' ', ''))
+    #     else:
+    #         direccion = label_pairs[direccion]
+    # elif (_dir_1 or _dir_1_num) and not d.in_2:
+    #     if "(" in d.in_1:
+    #         d.string = "{} {}".format(d.inst, "(Dir)")
+    #         direccion = d.in_1.replace('(', '').replace(')', '')
+    #         if _dir_1_num:
+    #             direccion = int(d.in_1.replace('(', '').replace(')',
+    #                                                             '').replace(' ', ''))
+    #         else:
+    #             direccion = label_pairs[direccion]
+    #
+    #     else:
+    #         d.string = "{} {}".format(d.inst, "Ins")
+    #         direccion = d.in_1.replace('(', '').replace(')', '')
+    #         direccion = label_pairs[direccion]
+    # elif _reg_1 and not d.in_2:
+    #     d.string = "{} {}".format(d.inst, d.in_1)
+    #     direccion = int(0)
+    # lit_dir = f'{int(direccion):016b}'
+    # if d.string in opcodes.keys():
+    #     instrucciones = lit_dir + \
+    #         (20-len(opcodes[d.string])) * '0' + opcodes[d.string]
+    #     total_instrucciones.append(instrucciones)
+    #
+    # else:
+    #     print("OPCODE NO ENCONTRADO ERROR", d)
+    #
+    # total_instrucciones_string.append(d.string)
 
 list_data_inst = []
 list_data_str = []
