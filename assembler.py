@@ -184,7 +184,7 @@ def process_bases(text: str) -> str:
     regex_filter = "\s--[0-9a-fA-F]+[--]?\s"
 
     ugly_stuff = re.findall(regex_filter, text)
-    print(ugly_stuff, text)
+    print(text)
     while ugly_stuff:
 
         ugly_stuff = str(ugly_stuff[0])
@@ -323,11 +323,11 @@ for pos, line in enumerate(machiny_stuff):
     line = Instruction(rom_dir=line[0],
                        label=(line[1][0][:-1]
                               if len(line[1]) == 1
-                              and line[1][0] != 'NOP'
+                              and (line[1][0] != 'NOP' and line[1][0] != 'RET')
                               else ''),
                        inst=(line[1][0]
                              if len(line[1]) != 1
-                             or line[1][0] == 'NOP'
+                             or (line[1][0] != 'NOP' or line[1][0] != 'RET')
                              else ''),
                        in_1=(line[1][1][0]
                              if len(line[1]) != 1
@@ -365,9 +365,11 @@ for unused_variable_in_python in machiny_stuff:
 #            if line.in_2.replace('(', '').replace(')', '') == key:
 #                line.in_2 = line.in_2.replace(key, str(label_pairs[key]))
 
-"""
-"""
+
 # Borro las labels. Son innecesarias.
+"""
+Label 
+"""
 for line in machiny_stuff:
     if line.label:
         line.label = ''
@@ -377,10 +379,17 @@ for line in data:
     if line.label:
         line.label = ''
 
+
 total_instrucciones = []
 total_instrucciones_string = []
 
+"""
+Comienzo a procesar las instrucciones
+"""
+print("////////////////////////")
+
 for d in machiny_stuff:
+    print(d)
     _dir_1 = (d.in_1.replace('(', '').replace(')', '')
               in label_pairs.keys())
     _dir_1_num = (d.in_1.replace('(', '').replace(')',
@@ -511,7 +520,8 @@ with open("ROM.txt", 'w') as f:
 
     for index, inst in enumerate(instrucciones_finales):
         f.write(inst)
-        print(inst[:16], ' ', inst[16:])
+        print(inst[:16], ' ', inst[16:], ' ',
+              instrucciones_finales_string[index])
         lista_hex = [conver_hex(inst[:4]), conver_hex(inst[4:12]),
                      conver_hex(inst[12:20]), conver_hex(inst[20:28]), conver_hex(inst[28:36])]
         lista_hex = bytearray(lista_hex)

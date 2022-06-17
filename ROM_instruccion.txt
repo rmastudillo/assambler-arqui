@@ -1,6 +1,19 @@
 MOV B, Lit
 MOV (Dir), B
 MOV B, Lit
-PUSH B
+MOV (Dir), B
 MOV B, Lit
-POP B
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV B, Lit
+MOV (Dir), B
+MOV A, Lit
+MOV B, Lit
+CALL Ins
