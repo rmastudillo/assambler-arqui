@@ -9,6 +9,7 @@ import os
 # Ctes.
 TOKENS_COMMENTS = ['//', ';']
 TOKENS_STRINGS = ['"', "'"]
+
 # Asignar las funciones si se agregan nuevos
 TOKENS_BASES = ['d', 'b', 'h']
 TOKEN_ARRAY_SEPARATOR = ','
@@ -31,7 +32,6 @@ def cargar_opcodes(ruta):
     for index, row in datos.iterrows():
         if index >= 1 and row[1] != 0:
             opcodes[row[1]] = row[2]
-            #print(row[1], row[2])
 
     return opcodes
 
@@ -48,19 +48,19 @@ class Instruction:
     inst
     """
 
-    def __init__(self, rom_dir, label, inst, in_1, in_2):
+    def __init__(self, rom_dir, label, instr, in_1, in_2):
         self.rom_dir = rom_dir
         self.label = label
-        self.inst = inst
+        self.inst = instr
         self.in_1 = in_1
         self.in_2 = in_2
         self.string = None
 
     def __str__(self):
-        return f"{self.rom_dir},{self.inst},{self.label} {self.in_1}, {self.in_2}"
+        return (f"{self.rom_dir},{self.inst},{self.label}"
+                f" {self.in_1}, {self.in_2}")
 
 # Datos
-
 
 class DataEntry:
     def __init__(self, rom_dir, label, value):
@@ -77,8 +77,6 @@ Limpiar texto
 """
 # ----- Líneas de texto -----
 # Saca los comentarios
-
-
 def remove_comments(text: str) -> str:
     for token in TOKENS_COMMENTS:
         text = text.split(token, 1)[0]
@@ -99,7 +97,6 @@ def trim_line(text: str) -> str:
 
 def clear_mid_spaces(text: str) -> str:
     text = text.replace("\t", ' ')
-
     double_space = '  '
 
     while double_space in text:
@@ -108,11 +105,19 @@ def clear_mid_spaces(text: str) -> str:
     return text
 
 
-"""
-Convertir bases numericas
-"""
+def replace_multiple(text: str, *things_to_change: tuple or list) -> str:
+    for nasty_stuff, nice_stuff in things_to_change:
+        text = text.replace(nasty_stuff, nice_stuff)
+
+    return text
 
 
+def remove_strs(text: str, *things_i_dont_want: str) -> str:
+    things_to_change = [(thing, '') for thing in things_i_dont_want]
+    return replace_multiple(text, *things_to_change)
+
+
+# ======= Convertir bases numericas =======
 def dec2decimal(value: str = "0d") -> str:
     """
     Recibe un numero y lo retorna en decimal
@@ -148,65 +153,68 @@ def hex2decimal(value: str = "0h") -> str:
     return value
 
 
+# ======= Convertir letras a nros =======
 def char2int(char: str = 'A') -> int:
     return ord(char)
 
 
+# =======================================
 def process_string(text: str) -> str:
     # Para cada token del array (', ")
     for token in TOKENS_STRINGS:
         # Reemplazar letras por números hasta que no queden letras.
         while token in text:
-            string = text.split(token, 2)[1]
+            super_stringy_string = text.split(token, 2)[1]
             new_string = str()
-            for char in string:
+
+            for char in super_stringy_string:
                 new_string += f"{char2int(char)}, "
 
             text = text.split(token, 2)[0] + \
                 new_string[:-2] + text.split(token, 2)[2]
+
     return text
 
 
 def process_arrays(text: str) -> list:
     if TOKEN_ARRAY_SEPARATOR in text:
         thingy = text.split(TOKEN_ARRAY_SEPARATOR)
+
     else:
         thingy = [text]
+
     return thingy
 
 
-def process_bases(text: str) -> str:
-    """
-    Esto esta bug
-    """
-
-    # BUG: Variables que incluyen
-    regex_filter = "\s--[0-9a-fA-F]+[--]?\s"
-
-    ugly_stuff = re.findall(regex_filter, text)
-    print(text)
-    while ugly_stuff:
-
-        ugly_stuff = str(ugly_stuff[0])
-
-        if ugly_stuff[-1] == 'd':
-            nice_stuff = dec2decimal(ugly_stuff)
-        elif ugly_stuff[-1] == 'b':
-
-            nice_stuff = bin2decimal(ugly_stuff)
-        elif ugly_stuff[-1] == 'h':
-
-            nice_stuff = hex2decimal(ugly_stuff)
-        else:
-            raise ValueError
-
-        parts = text.split(ugly_stuff)
-        text = parts[0] + str(nice_stuff)
-        text += parts[1] if len(parts) > 1 else ''
-
-        ugly_stuff = re.findall(regex_filter, text)
-
-    return text
+# def process_bases(text: str) -> str:
+#     """Esto esta buggueado"""
+#     # BUG: Variables que incluyen
+#     regex_filter = "\s--[0-9a-fA-F]+[--]?\s"
+#
+#     ugly_stuff = re.findall(regex_filter, text)
+#     print(text)
+#     while ugly_stuff:
+#
+#         ugly_stuff = str(ugly_stuff[0])
+#
+#         if ugly_stuff[-1] == 'd':
+#             nice_stuff = dec2decimal(ugly_stuff)
+#         elif ugly_stuff[-1] == 'b':
+#
+#             nice_stuff = bin2decimal(ugly_stuff)
+#         elif ugly_stuff[-1] == 'h':
+#
+#             nice_stuff = hex2decimal(ugly_stuff)
+#         else:
+#             raise ValueError
+#
+#         parts = text.split(ugly_stuff)
+#         text = parts[0] + str(nice_stuff)
+#         text += parts[1] if len(parts) > 1 else ''
+#
+#         ugly_stuff = re.findall(regex_filter, text)
+#
+#     return text
 
 
 # ----- Direcciones de memoria y cosas feas realcionadas -----
@@ -222,10 +230,11 @@ def assign_rom_dir(code: list, starting_dir: int = 0) -> list:
         organized_code.append((instruction_counter,
                                instr))
         instruction_counter += 1
+
     return organized_code
 
 
-def convert_to_DataEntry(entry: tuple) -> DataEntry:
+def convert_to_dataentry(entry: tuple) -> DataEntry:
     if len(entry[1].split(' ')) > 1:
         data_label = entry[1].split(' ')[0]
         data_value = entry[1].split(' ')[1]
@@ -241,8 +250,6 @@ def convert_to_DataEntry(entry: tuple) -> DataEntry:
     return entry
 
 # ----- Cosas mágicas con tokens -----
-
-
 def split_token(text: str) -> list:
     return list()
 
@@ -261,7 +268,7 @@ with open(input_file, 'r', encoding='utf-8') as file:
 for pos, line in enumerate(content):
     line = process_string(line)
     line = clear_mid_spaces(line)
-    line = process_bases(line)
+    # line = process_bases(line)
     content[pos] = line
 
 # Dividir data y code
@@ -298,7 +305,7 @@ data = assign_rom_dir(data)
 
 
 for pos, line in enumerate(data):
-    line = convert_to_DataEntry(line)
+    line = convert_to_dataentry(line)
     data[pos] = line
 
 # Proceso instrucciones
@@ -325,10 +332,10 @@ for pos, line in enumerate(machiny_stuff):
                               if len(line[1]) == 1
                               and (line[1][0] != 'NOP' and line[1][0] != 'RET')
                               else ''),
-                       inst=(line[1][0]
-                             if len(line[1]) != 1
-                             or (line[1][0] != 'NOP' or line[1][0] != 'RET')
-                             else ''),
+                       instr=(line[1][0]
+                              if len(line[1]) != 1
+                              or (line[1][0] != 'NOP' or line[1][0] != 'RET')
+                              else ''),
                        in_1=(line[1][1][0]
                              if len(line[1]) != 1
                              else ''),
@@ -389,31 +396,91 @@ Comienzo a procesar las instrucciones
 print("////////////////////////")
 
 
-def procesar_indice(indice):
-    print(indice)
-    breakpoint()
-    if indice == "A":
-        return ["A", "Registro"]
-    elif indice == "B":
-        return ["B", "Registro"]
+def procesar_indice(indice: int or str):
+    # MOV B, 5
+    # MOV B, (B)
+    # MOV B, (  B   )
+    # MOV B, (hola)
+    # [Intr, *Idx*, *Idx*]
+
+    indice = remove_strs(indice, ' ', '\t', '\n')
+
+    def convert_numbers_to_base_ten(strange_base_num: str) -> str:
+        if strange_base_num[-1] == 'd':
+            return dec2decimal(strange_base_num)
+
+        elif strange_base_num[-1] == 'b':
+            return bin2decimal(strange_base_num)
+
+        elif strange_base_num[-1] == 'h':
+            return hex2decimal(strange_base_num)
+
+        else:
+            raise ValueError(f"Se intentó convertir '{strange_base_num}' a "
+                             f"decimal, pero no es base 2, 16 ó 10")
+
+    if indice in ('A', 'B'):
+        # [, 'A||B']
+        return [None, indice]
+
+    # num -> ['Lit', < var >]
     elif indice.isnumeric():
-        return [indice, "Lit"]
-    elif "(" in indice:
-        t_indice = indice.replace('(', '').replace(')', '')
-        print("Kkkkkkkkkkkkkkkkkk")
-        breakpoint()
+        return [indice, 'Lit']
+
+    # label -> ['Lit', label --> lit]
+    elif indice in label_pairs.keys():
+        return [label_pairs[indice], 'Ins']
+
+    elif indice[0] == '(' and indice[-1] == ')':
+        t_indice = indice[1:-1]
+
+        # 10b -> 2
+        if t_indice[-1] in 'hbd':
+            num_index = convert_numbers_to_base_ten(t_indice)
+
         if t_indice in label_pairs.keys():
-            breakpoint()
-            return [indice, "Lit"]
-    tipo = None
-    return indice, tipo
+            return [t_indice, '(Dir)']
+
+        elif t_indice.isnumeric():
+            return [t_indice, '(Lit)']
+
+    elif indice[-1] in ('d', 'b', 'h'):
+        """
+        Si entra aca es porque es un numero en otra base
+        """
+        return [convert_numbers_to_base_ten(indice), 'Lit']
+
+    else:
+        raise ValueError(f"El índice '{indice}' no está sorportado")
+
+
+def generar_codigo(valor, instruccion):
+    if instruccion in opcodes.keys():
+        primeros16 = f'{int(valor):016b}'
+        siguientes20 = (20-len(opcodes[instruccion])) * '0' + opcodes[instruccion]
+        respuesta = primeros16 + siguientes20
+        return respuesta
+    else:
+        raise KeyError("OPCODE NO ENCONTRADO ERROR", instruccion)
 
 
 def MOV(instruccion):
-    indice_1, tipo_1 = procesar_indice(instruccion.in_1)
-    indice_2, tipo_2 = procesar_indice(instruccion.in_2)
+    valor_1, palabra_1 = procesar_indice(instruccion.in_1)
+    valor_2, palabra_2 = procesar_indice(instruccion.in_2)
+    breakpoint()
+    if palabra_1 and palabra_2:
+        instruccion_string = 'MOV {}, {}'.format(palabra_1, palabra_2)
+        resultado = ''
+        if valor_1:
+            resultado = generar_codigo(valor_1, instruccion_string)
+            return resultado
+        elif valor_2:
+            resultado = generar_codigo(valor_2, instruccion_string)
+            return resultado
 
-    pass
+    else:
+        raise KeyError("Instruccion no permitida", instruccion)
+    return resultado
 
 
 for d in machiny_stuff:
@@ -436,6 +503,7 @@ for d in machiny_stuff:
     if d.inst == "MOV":
         print("AAAAAAAAAAAA")
         resp = MOV(d)
+        breakpoint()
 
     if d.inst == "NOP":
         d.string = "NOP"
@@ -486,11 +554,12 @@ for d in machiny_stuff:
     lit_dir = f'{int(direccion):016b}'
     if d.string in opcodes.keys():
         instrucciones = lit_dir + \
-            (20-len(opcodes[d.string]))*'0'+opcodes[d.string]
+            (20-len(opcodes[d.string])) * '0' + opcodes[d.string]
         total_instrucciones.append(instrucciones)
 
     else:
         print("OPCODE NO ENCONTRADO ERROR", d)
+
     total_instrucciones_string.append(d.string)
 
 list_data_inst = []
@@ -500,6 +569,7 @@ for d in data:
     string = "MOV B, Lit".format(d.value)
     try:
         valor_literal = int(d.value)
+
     except:
         if d.value[-1] == 'd':
 
