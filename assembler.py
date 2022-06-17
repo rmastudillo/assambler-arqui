@@ -548,11 +548,6 @@ for index, d in enumerate(machiny_stuff):
         total_instrucciones.append(resp)
 
 
-
-
-
-# ============================================================
-
 def convert_str_num_to_int_base_ten(as_is_data_num: str or int) -> int:
     n_val = as_is_data_num
 
@@ -604,17 +599,7 @@ instrucciones_finales = [
     *total_instrucciones]
 
 
-print(" \033[92;1m~~~~~~~~~~~ DATA ~~~~~~~~~~~\033[0m ")
-for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
-print(" \033[92;1m~~~~~~~~~~~ CODE ~~~~~~~~~~~\033[0m ")
-for i in total_instrucciones: print(i[:16], i[16:])
-print(" \033[92;1m~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m ")
-
-# print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)  # TODO: sacar...
-
 """Acá se escriben las instrucciones"""
-
-
 def conver_hex(binario_string):
     # print(type(hex(int(binario_string, 2))), int(
     #   hex(int(binario_string, 2))), type(int(hex(int(binario_string, 2)))))
@@ -637,9 +622,23 @@ with open("ROM.txt", 'w') as f:
 
 # rom_programmer.end()
 
-"""
-Esto es solo para debug
-"""
 
-print('FIN')
-print('😊')
+print(" \033[92;1m~~~~~~~~~~~ DATA ~~~~~~~~~~~\033[0m ")
+jump_count = 12
+for i in convert_data_entries_to_inst(data):
+    print(i[:16], i[16:])
+    jump_count -= 1
+
+    if not jump_count:
+        print(jump_count)
+print(" \033[92;1m~~~~~~~~~~~ CODE ~~~~~~~~~~~\033[0m ")
+jump_count = 12
+for i in total_instrucciones:
+    print(i[:16], i[16:])
+
+    jump_count -= 1
+
+    if not jump_count:
+        print(jump_count)
+print(" \033[92;1m~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m ")
+print('FIN'); print('😊')
