@@ -532,6 +532,10 @@ for index, d in enumerate(machiny_stuff):
             print(pop_a_2)
         elif assembly_inst_ == "SUB B, Lit":
             resp_2 = opcodes["NOT B"].rjust(36, "0")
+        elif assembly_inst_ == "MOV (Dir), Lit":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            move_a_lit = resp[:16] + opcodes["MOV A, Lit"]
+            pass
 
 
 
@@ -567,10 +571,16 @@ def convert_data_entries_to_inst(data_entries_lst: list or tuple) -> list:
     # DataEntry.value: int
     list_data_inst = list()
 
+    intr_1 = 'MOV B, Lit'
+    intr_2 = 'MOV (Dir), B'
+
     for d_entry in data:
         numeric_val = convert_str_num_to_int_base_ten(d_entry.value)
         val_as_binary = f'{int(numeric_val):016b}'
         dir_as_binary = f'{int(d_entry.rom_dir):016b}'
+
+        bin_result_1 = f"{val_as_binary}{str(opcodes[intr_1]).rjust(20, '0')}"
+        bin_result_2 = f"{dir_as_binary}{str(opcodes[intr_2]).rjust(20, '0')}"
 
         list_data_inst.append(instrucciones)
 
