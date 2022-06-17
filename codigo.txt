@@ -8,7 +8,10 @@ sec  0
 msec 0
 usec 0
 lcd  0
-
+; Parece que F dc
+; descansa un rato, gracias por la ayuda
+; Vot a reiniciar el pc de pasada. En una de esas se arregla.
+; Tema aparte, Supraland está gratis en epic... XD
 CODE:
 
 NOP
