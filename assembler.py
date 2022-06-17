@@ -33,7 +33,8 @@ NORMAL_TXT = '\033[0m'
 
 
 def use_bloody_red_color(text) -> str:
-    return f"{DARKCYAN_BOLD}{text}{NORMAL_TXT}"
+    # return f"{DARKCYAN_BOLD}{text}{NORMAL_TXT}"
+    return f"{text}"
 
 
 def cargar_opcodes(ruta):
@@ -391,7 +392,6 @@ def procesar_indice(indice: int or str):
 
     # label -> ['Lit', label --> lit]
     elif indice in label_pairs.keys():
-        breakpoint()
         return [label_pairs[indice], 'Ins']
 
     elif indice[0] == '(' and indice[-1] == ')':
@@ -426,6 +426,9 @@ def procesar_indice(indice: int or str):
 
 
 def generar_codigo(valor, instruccion):
+    if "MOV A, Ins" == instruccion:
+        print(valor)
+        breakpoint()
     if instruccion in opcodes.keys():
         # primeros16 = f'{int(valor):016b}'
         # siguientes20 = (20 - len(opcodes[instruccion])) * '0' + \
@@ -555,9 +558,9 @@ for index, d in enumerate(machiny_stuff):
             total_instrucciones.append(resp_2)
         elif assembly_inst_ == "MOV (Dir), Lit":
             direccion = f'{int(label_pairs[d.in_1[1:-1]]):016b}'
-            valor = f'{int(d.in_2):016b}'
+            valor_ = f'{int(d.in_2):016b}'
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
-            move_a_lit = valor + opcodes["MOV A, Lit"].rjust(20, "0")
+            move_a_lit = valor_ + opcodes["MOV A, Lit"].rjust(20, "0")
             move_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20, "0")
             pop_a = opcodes["POP A"].rjust(36, '0')
             pop_a_2 = opcodes["POP A2"].rjust(36, '0')
@@ -579,9 +582,9 @@ for index, d in enumerate(machiny_stuff):
             total_instrucciones.append(resp)
             total_instrucciones.append(ret_2)
         elif assembly_inst_ == "MOV (B), Lit":
-            valor = f'{int(d.in_2):016b}'
+            valor_ = f'{int(d.in_2):016b}'
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
-            move_a_lit = valor + opcodes["MOV A, Lit"].rjust(20, "0")
+            move_a_lit = valor_ + opcodes["MOV A, Lit"].rjust(20, "0")
             move_b_dir_a = opcodes["MOV (B), A"].rjust(36, "0")
             pop_a = opcodes["POP A"].rjust(36, '0')
             pop_a_2 = opcodes["POP A2"].rjust(36, '0')
