@@ -27,6 +27,10 @@ input_file = str(argv[1])
 # Instrucciones
 
 
+RED_BOLD = '\033[1;91m'
+NORMAL_TXT = '\033[0m'
+
+
 def cargar_opcodes(ruta):
     """
     recibe la ruta
@@ -364,6 +368,11 @@ def convert_numbers_to_base_ten(strange_base_num: str) -> str:
 
 def procesar_indice(indice: int or str):
     # [Intr, indice, indice]
+
+    # print(f"{RED_BOLD}DEBUG{NORMAL_TXT}")
+    # print(f"{RED_BOLD} ~~ {indice} ~~ {NORMAL_TXT}")
+    # print(f"{RED_BOLD}DEBUG{NORMAL_TXT}")
+
     indice = remove_strs(indice, ' ', '\t', '\n')
 
     if indice in REGISTERS:
@@ -435,6 +444,19 @@ def codigo_de_maquina(instruccion,assambler_inst):
         resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
         return resultado, instruccion_string
 
+    if instruccion.inst == "RET":
+        instruccion_string = "RET"
+        # resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
+        #             opcodes[instruccion_string]
+        resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
+        return resultado, instruccion_string
+
+    if instruccion.inst == "PUSH":
+        instruccion_string = "PUSH {}".format(instruccion.in_1)
+        # resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
+        #             opcodes[instruccion_string]
+        resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
+        return resultado, instruccion_string
     valor_1, palabra_1 = procesar_indice(instruccion.in_1)
 
     if instruccion.in_2 != '':

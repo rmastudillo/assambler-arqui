@@ -11,6 +11,9 @@ lcd  0
 
 CODE:
 
+std_io_btn_wait:
+    RET
+
 MOV A,0
 MOV B,7
 CALL reset_port_loop
