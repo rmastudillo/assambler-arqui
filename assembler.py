@@ -1,6 +1,6 @@
 from sys import argv
 from collections import defaultdict
-import re
+# import re
 from iic2343 import Basys3
 import pandas as pd
 import os
@@ -19,10 +19,10 @@ TOKEN_INPUTS_SEPARATOR = ','
 REGISTERS = ['A', 'B']
 CASOS_ESPECIALES = ('SUB B, Lit',
                     'INC A', 'INC B', 'INC (Dir)', 'INC (B)',
-                    'DEC A',
-                    'RET',
-                    'PUSH A', 'PUSH B',
-                    'POP A', 'POP B')
+                    'DEC A', 'RET', 'PUSH A', 'PUSH B',
+                    'POP A', 'POP B','MOV (Dir), Lit',
+                    'MOV (B), Lit',
+                    'ADD B, (Dir)')
 # Argumentos --> Archivo de entrada
 input_file = str(argv[1])
 # Instrucciones
@@ -411,10 +411,12 @@ def procesar_indice(indice: int or str):
 
 def generar_codigo(valor, instruccion):
     if instruccion in opcodes.keys():
-        primeros16 = f'{int(valor):016b}'
-        siguientes20 = (20 - len(opcodes[instruccion])) * '0' + \
-                       opcodes[instruccion]
-        respuesta = primeros16 + siguientes20
+        # primeros16 = f'{int(valor):016b}'
+        # siguientes20 = (20 - len(opcodes[instruccion])) * '0' + \
+        #                opcodes[instruccion]
+        # respuesta = primeros16 + siguientes20
+        respuesta = f"{int(valor):016b}" \
+                    f"{str(opcodes[instruccion]).rjust(20, '0')}"
 
         return respuesta
 
@@ -429,9 +431,9 @@ def codigo_de_maquina(instruccion,assambler_inst):
 
     if instruccion.inst == "NOP":
         instruccion_string = "NOP"
-        resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
-                    opcodes[instruccion_string]
-
+        # resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
+        #             opcodes[instruccion_string]
+        resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
         return resultado, instruccion_string
 
     valor_1, palabra_1 = procesar_indice(instruccion.in_1)
@@ -446,12 +448,12 @@ def codigo_de_maquina(instruccion,assambler_inst):
         if valor_1 is not None:
             resultado = generar_codigo(valor_1, instruccion_string)
 
-            return resultado,instruccion_string
+            return resultado, instruccion_string
 
         elif valor_2 is not None:
             resultado = generar_codigo(valor_2, instruccion_string)
 
-            return resultado,instruccion_string
+            return resultado, instruccion_string
 
         elif palabra_1 and palabra_2:
             if instruccion_string not in opcodes.keys():
@@ -459,8 +461,9 @@ def codigo_de_maquina(instruccion,assambler_inst):
 
                 raise KeyError("1NO está en el opcode", instruccion_string)
 
-            resultado = (36 - len(opcodes[instruccion_string])) * \
-                        '0' + opcodes[instruccion_string]
+            # resultado = (36 - len(opcodes[instruccion_string])) * \
+            #             '0' + opcodes[instruccion_string]
+            resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
 
             return resultado,instruccion_string
 
@@ -480,7 +483,8 @@ def codigo_de_maquina(instruccion,assambler_inst):
 
 
 for key in label_pairs.keys():
-    print('{} {}'.format(key, bin(int(label_pairs[key]))))
+    print(f"{key} {bin(int(label_pairs[key]))}")
+
 
 for index, d in enumerate(machiny_stuff):
     resp, assembly_inst_ = codigo_de_maquina(d, d.inst)
@@ -495,13 +499,15 @@ for index, d in enumerate(machiny_stuff):
             add_a_dir = resp[:16] + add_a_dir
             pop_a = opcodes["POP A"].rjust(36, '0')
             pop_a_2 = opcodes["POP A2"].rjust(36, '0')
-            print(push_a)
-            print(move_a_lit)
-            print(add_a_dir)
-            print(pop_a)
-            print(pop_a_2)
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(move_a_lit)
+            total_instrucciones.append(add_a_dir)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
         elif assembly_inst_ == "SUB B, Lit":
             resp_2 = opcodes["NOT B"].rjust(36, "0")
+            total_instrucciones.append(resp)
+            total_instrucciones.append(resp_2)
         elif assembly_inst_ == "MOV (Dir), Lit":
             direccion = f'{int(label_pairs[d.in_1[1:-1]]):016b}'
             valor = f'{int(d.in_2):016b}'
@@ -510,12 +516,38 @@ for index, d in enumerate(machiny_stuff):
             move_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20, "0")
             pop_a = opcodes["POP A"].rjust(36, '0')
             pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(move_a_lit)
+            total_instrucciones.append(move_dir_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
         elif assembly_inst_ == "POP A":
             pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(resp)
+            total_instrucciones.append(pop_a_2)
         elif assembly_inst_ == "POP B":
             pop_b_2 = opcodes["POP B2"].rjust(36, '0')
+            total_instrucciones.append(resp)
+            total_instrucciones.append(pop_b_2)
         elif assembly_inst_ == "RET":
             ret_2 = opcodes["RET 2"].rjust(36, '0')
+            total_instrucciones.append(resp)
+            total_instrucciones.append(ret_2)
+        elif assembly_inst_ == "MOV (B), Lit":
+            valor = f'{int(d.in_2):016b}'
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            move_a_lit = valor + opcodes["MOV A, Lit"].rjust(20, "0")
+            move_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20, "0")
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(move_a_lit)
+            total_instrucciones.append(move_dir_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+    else:
+        total_instrucciones.append(resp)
+
 
 
 
