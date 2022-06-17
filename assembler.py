@@ -433,29 +433,34 @@ def generar_codigo(valor, instruccion):
     # XXX: PLACE HOLDER, ARREGLAR
     # NOTE: PLACE HOLDER, ARREGLAR
     # WARN: PLACE HOLDER, ARREGLAR
+
+    jumps = ("JMP",
+             "JEQ", "JNE",
+             "JGT", "JLT",
+             "JGE", "JLE",
+             "JCR",
+             "CALL")
+
+    not_jumps = ("MOV", "RET", "POP", "PUSH", "ADD", "SUB",
+                 "AND", "OR", "XOR", "NOT", "SHL", "SHR", "INC",
+                 "DEC", "CMP", "PUSH", "NOP")
     """
     PLACE HOLDER, ARREGLAR
     """
+
     if "Ins" in instruccion:
-        if "JMP" in 
+        cambiar = 0
 
-    if "MOV A, Ins" == instruccion:
-        instruccion = "MOV A, Dir"
+        for j in not_jumps:
+            if j in instruccion:
+                cambiar = 1
 
-    elif "MOV B, Ins" == instruccion:
-        instruccion = "MOV B, Dir"
+        if cambiar:
+            instruccion = instruccion.replace("Ins", "Dir")
 
-    elif "ADD A, Ins" == instruccion:
-        instruccion = "ADD A, Dir"
-
-    elif "ADD B, Ins" == instruccion:
-        instruccion = "ADD B, Dir"
-
-    elif "SUB A, Ins" == instruccion:
-        instruccion = "SUB A, Dir"
-
-    elif "SUB B, Ins" == instruccion:
-        instruccion = "SUB B, Dir"
+    else:
+        # instruccion = instruccion.replace("Dir", "Ins")
+        pass
 
 
 
