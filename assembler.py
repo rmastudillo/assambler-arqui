@@ -16,9 +16,7 @@ TOKEN_ARRAY_SEPARATOR = ','
 TOKEN_LABEL = ':'
 TOKEN_INPUTS_SEPARATOR = ','
 REGISTERS = ['A', 'B']
-CASOS_ESPECIALES = {
-    "SUB B, Lit" = '000000000000100100100'
-}
+CASOS_ESPECIALES = ("SUB B, Lit","INC A","INC B","INC (Dir)","INC (B)","DEC A", "RET",)
 # Argumentos --> Archivo de entrada
 input_file = str(argv[1])
 # Instrucciones
@@ -35,7 +33,7 @@ def cargar_opcodes(ruta):
         if index_ >= 1 and row[1] != 0:
             opcodes_[row[1]] = row[2]
 
-    return opcodes
+    return opcodes_
 
 
 my_path = os.path.abspath(os.path.dirname(__file__))
@@ -437,7 +435,8 @@ def procesar_indice(indice: int or str):
 def generar_codigo(valor, instruccion):
     if instruccion in opcodes.keys():
         primeros16 = f'{int(valor):016b}'
-        siguientes20 = (20-len(opcodes[instruccion])) * '0' + opcodes[instruccion]
+        siguientes20 = (20 - len(opcodes[instruccion])) * \
+                       '0' + opcodes[instruccion]
         respuesta = primeros16 + siguientes20
 
         return respuesta
@@ -514,14 +513,24 @@ list_data_str = []
 
 # ============================================================
 
-# data: Asignación de datos (con labels)
 
+def convert_data_entries_to_inst(data_entries_lst: list or tuple) -> list:
+    # data: Asignación de datos (con labels)
+    # data -> DataEntry
+
+    for d_entry in data:
+        pass
+
+    return list()
+
+
+print(type(data)); print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)
 
 # ============================================================
 
 for d in data:
     # Primera op
-    string = "MOV B, Lit".format(d.value)
+    string = "MOV B, Lit {}".format(d.value)
     try:
         valor_literal = int(d.value)
 
