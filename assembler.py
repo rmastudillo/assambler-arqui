@@ -494,7 +494,7 @@ for index, d in enumerate(machiny_stuff):
             add_a_dir = (20 - len(opcodes["ADD A, (Dir)"])) * '0' + opcodes["ADD A, (Dir)"]
             add_a_dir = resp[:16] + add_a_dir
             pop_a = opcodes["POP A"].rjust(36, '0')
-            pop_a_2 = '00010100000000011100'.rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
             print(push_a)
             print(move_a_lit)
             print(add_a_dir)
@@ -509,13 +509,13 @@ for index, d in enumerate(machiny_stuff):
             move_a_lit = valor + opcodes["MOV A, Lit"].rjust(20, "0")
             move_dir_a = direccion + opcodes["MOV (Dir), A"].rjust(20, "0")
             pop_a = opcodes["POP A"].rjust(36, '0')
-            pop_a_2 = '00010100000000011100'.rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
         elif assembly_inst_ == "POP A":
-            pop_a_2 = '00010100000000011100'.rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
         elif assembly_inst_ == "POP B":
-            pop_a_2 = '00010100000000011010'.rjust(36, '0')
+            pop_b_2 = opcodes["POP B2"].rjust(36, '0')
         elif assembly_inst_ == "RET":
-            ret_2 = '00000100000000000000'
+            ret_2 = opcodes["RET 2"].rjust(36, '0')
 
 
 
@@ -573,10 +573,9 @@ instrucciones_finales = [
     *total_instrucciones]
 
 
-# for i in instrucciones_finales: print(i[:16], i[16:])
-# print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
-# for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
-# print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
+print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
+for i in instrucciones_finales: print(i[:16], i[16:])
+print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
 # print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)  # TODO: sacar...
 
 """Acá se escriben las instrucciones"""
