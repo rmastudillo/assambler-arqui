@@ -1,8 +1,8 @@
 DATA:
 
- None 238
- i 10
-
+    i 10
+ a 5 
+ b Ah
 CODE:
 
-MOV (None), 17
+MOV (i), 17

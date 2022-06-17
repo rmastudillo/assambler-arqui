@@ -568,8 +568,10 @@ instrucciones_finales = [
 
 
 # for i in instrucciones_finales: print(i[:16], i[16:])
-# for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
-# print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)  # TODO: sacar...
+print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
+for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
+print(" ~~~~~~~~~~~~~~~~~~~~~~~ ")
+print('~-~-~-~-SaLiDa FeA~-~-~-~-'); exit(0)  # TODO: sacar...
 
 # # ============================================================
 #
