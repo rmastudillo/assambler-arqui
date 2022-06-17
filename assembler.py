@@ -388,6 +388,34 @@ Comienzo a procesar las instrucciones
 """
 print("////////////////////////")
 
+
+def procesar_indice(indice):
+    print(indice)
+    breakpoint()
+    if indice == "A":
+        return ["A", "Registro"]
+    elif indice == "B":
+        return ["B", "Registro"]
+    elif indice.isnumeric():
+        return [indice, "Lit"]
+    elif "(" in indice:
+        t_indice = indice.replace('(', '').replace(')', '')
+        print("Kkkkkkkkkkkkkkkkkk")
+        breakpoint()
+        if t_indice in label_pairs.keys():
+            breakpoint()
+            return [indice, "Lit"]
+    tipo = None
+    return indice, tipo
+
+
+def MOV(instruccion):
+    indice_1, tipo_1 = procesar_indice(instruccion.in_1)
+    indice_2, tipo_2 = procesar_indice(instruccion.in_2)
+
+    pass
+
+
 for d in machiny_stuff:
     print(d)
     _dir_1 = (d.in_1.replace('(', '').replace(')', '')
@@ -405,6 +433,10 @@ for d in machiny_stuff:
     _lit_2 = d.in_2.isdigit()
     lit_dir = ""
     direccion = 0
+    if d.inst == "MOV":
+        print("AAAAAAAAAAAA")
+        resp = MOV(d)
+
     if d.inst == "NOP":
         d.string = "NOP"
         direccion = int(0)
@@ -520,8 +552,8 @@ with open("ROM.txt", 'w') as f:
 
     for index, inst in enumerate(instrucciones_finales):
         f.write(inst)
-        print(inst[:16], ' ', inst[16:], ' ',
-              instrucciones_finales_string[index])
+        # print(inst[:16], ' ', inst[16:], ' ',
+        #      instrucciones_finales_string[index])
         lista_hex = [conver_hex(inst[:4]), conver_hex(inst[4:12]),
                      conver_hex(inst[12:20]), conver_hex(inst[20:28]), conver_hex(inst[28:36])]
         lista_hex = bytearray(lista_hex)
@@ -533,6 +565,7 @@ with open("ROM.txt", 'w') as f:
 """
 Esto es solo para debug
 """
+
 
 with open("ROM_instruccion.txt", 'w') as f:
     for inst in instrucciones_finales_string:
