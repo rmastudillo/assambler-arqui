@@ -515,7 +515,12 @@ def codigo_de_maquina(instruccion,assambler_inst):
         resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
         return resultado, instruccion_string
     if instruccion.inst == "INC":
-        instruccion_string = "INC {}".format(instruccion.in_1)
+
+        if "(" in instruccion.in_1:
+            instruccion_string = "INC (Dir)"
+        else:
+            instruccion_string = "INC {}".format(instruccion.in_1)
+            
         # resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
         #             opcodes[instruccion_string]
         resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
@@ -583,6 +588,7 @@ for index, d in enumerate(machiny_stuff):
         assembly_inst_= None
 
     else:
+
         resp, assembly_inst_ = codigo_de_maquina(d, d.inst)
     if d.inst in jumps:
         resp = str(d.in_1) + resp[16:]
@@ -592,7 +598,10 @@ for index, d in enumerate(machiny_stuff):
             move_a_lit = '1' + opcodes["MOV A, Lit"]
             move_a_lit = (36 - (len(move_a_lit)))*'0' + move_a_lit
             add_a_dir = (20 - len(opcodes["ADD A, (Dir)"])) * '0' + opcodes["ADD A, (Dir)"]
-            add_a_dir = resp[:16] + add_a_dir
+            resp = f'{int(label_pairs[d.in_1[1:-1]]):016b}'
+            print(resp)
+            breakpoint()
+            add_a_dir = resp + add_a_dir
             pop_a = opcodes["POP A"].rjust(36, '0')
             pop_a_2 = opcodes["POP A2"].rjust(36, '0')
             total_instrucciones.append(push_a)
