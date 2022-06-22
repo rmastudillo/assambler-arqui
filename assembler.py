@@ -515,12 +515,10 @@ def codigo_de_maquina(instruccion,assambler_inst):
         resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
         return resultado, instruccion_string
     if instruccion.inst == "INC":
-
-        if "(" in instruccion.in_1:
+        if "(" in instruccion.in_1 :
             instruccion_string = "INC (Dir)"
         else:
             instruccion_string = "INC {}".format(instruccion.in_1)
-            
         # resultado = (36 - len(opcodes[instruccion_string])) * '0' + \
         #             opcodes[instruccion_string]
         resultado = f"{str(opcodes[instruccion_string]).rjust(36, '0')}"
@@ -580,33 +578,33 @@ def codigo_de_maquina(instruccion,assambler_inst):
 for key in label_pairs.keys():
     print(f"{key} {bin(int(label_pairs[key]))} , AAA")
 
-
+compare=0
 for index, d in enumerate(machiny_stuff):
 
     if ':' in d.inst:
         resp = d
         assembly_inst_= None
-
+        print(d.inst)
     else:
-
         resp, assembly_inst_ = codigo_de_maquina(d, d.inst)
+        print(assembly_inst_)
     if d.inst in jumps:
         resp = str(d.in_1) + resp[16:]
     if assembly_inst_ in CASOS_ESPECIALES:
         if assembly_inst_ == "INC (Dir)":
-            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            push_a = opcodes["PUSH A"].rjust(36,'0')
             move_a_lit = '1' + opcodes["MOV A, Lit"]
             move_a_lit = (36 - (len(move_a_lit)))*'0' + move_a_lit
             add_a_dir = (20 - len(opcodes["ADD A, (Dir)"])) * '0' + opcodes["ADD A, (Dir)"]
-            resp = f'{int(label_pairs[d.in_1[1:-1]]):016b}'
-            print(resp)
-            breakpoint()
+            resp= f'{int(label_pairs[d.in_1[1:-1]]):016b}'
             add_a_dir = resp + add_a_dir
+            move_dir_a = resp + opcodes["MOV (Dir), A"].rjust(20, "0")
             pop_a = opcodes["POP A"].rjust(36, '0')
             pop_a_2 = opcodes["POP A2"].rjust(36, '0')
             total_instrucciones.append(push_a)
             total_instrucciones.append(move_a_lit)
             total_instrucciones.append(add_a_dir)
+            total_instrucciones.append(move_dir_a)
             total_instrucciones.append(pop_a)
             total_instrucciones.append(pop_a_2)
         elif assembly_inst_ == "INC A":
@@ -665,7 +663,13 @@ for index, d in enumerate(machiny_stuff):
             total_instrucciones.append(pop_a_2)
         elif assembly_inst_ == "SUB B, (Dir)":
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
-            direccion =  f'{int(label_pairs[d.in_2[1:-1]]):016b}'
+            try:
+                direccion = f'{int(label_pairs[d.in_2[1:-1]]):016b}'
+            except:
+                if d.in_2[1:-1].isnumeric():
+                    direccion = f'{int(d.in_2[1:-1]):016b}'
+                else:
+                    raise KeyError(d)
             sub_a_dir = (20 - len(opcodes["SUB A, (Dir)"])) * '0' + opcodes["SUB A, (Dir)"]
             sub_a_dir = direccion + sub_a_dir
             mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
@@ -780,7 +784,21 @@ for index, d in enumerate(machiny_stuff):
             total_instrucciones.append(pop_a)
             total_instrucciones.append(pop_a_2)
         elif assembly_inst_ == "CMP A, (Dir)":
-            raise KeyError("no está la instruccion {}  implementado".format(assembly_inst_))
+            push_b = (36 - len(opcodes["PUSH B"])) * '0' + opcodes["PUSH B"]
+            mov_b_dir = (20 - len(opcodes["MOV B, (Dir)"])) * '0' + opcodes["MOV B, (Dir)"]
+            try:
+                direccion = f'{int(label_pairs[d.in_2[1:-1]]):016b}'
+            except:
+                if d.in_2[1:-1].isnumeric():
+                    direccion = f'{int(d.in_2[1:-1]):016b}'
+                else:
+                    raise KeyError(d)
+            mov_b_dir = direccion + mov_b_dir
+            cmp_a_b = opcodes["CMP A, B"].rjust(36,'0')
+            total_instrucciones.append(push_b)
+            total_instrucciones.append(mov_b_dir)
+            total_instrucciones.append(cmp_a_b)
+            compare = 1
         elif assembly_inst_ == "CMP A, (B)":
             b_b = (36 - len(opcodes["MOV B, (B)"])) * '0' + opcodes["MOV B, (B)"]
             a_b = (36 - len(opcodes["CMP A, B"])) * '0' + opcodes["CMP A, B"]
@@ -887,10 +905,22 @@ for index, d in enumerate(machiny_stuff):
             total_instrucciones.append(mov_b_a)
             total_instrucciones.append(pop_a)
             total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "PUSH A":
+            res  = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            total_instrucciones.append(res)
+        elif assembly_inst_ == "PUSH B":
+            res  = (36 - len(opcodes["PUSH B"])) * '0' + opcodes["PUSH B"]
+            total_instrucciones.append(res)
 
 
     else:
         total_instrucciones.append(resp)
+        if compare:
+            pop_b = opcodes["POP B"].rjust(36, '0')
+            pop_b_2 = opcodes["POP B2"].rjust(36, '0')
+            total_instrucciones.append(pop_b)
+            total_instrucciones.append(pop_b_2)
+            compare = 0
     try:
         print(resp[:16], ' ', resp[16:], ' ', assembly_inst_,
               '|||', d.in_1, d.in_2)
@@ -1008,7 +1038,7 @@ print(" \033[92;1m~~~~~~~~~~~ DATA ~~~~~~~~~~~\033[0m ")
 for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
 print(" \033[92;1m~~~~~~~~~~~ CODE ~~~~~~~~~~~\033[0m ")
 
-for i in instrucciones_finales[(len(data)*2)+1:]: 
+for i in instrucciones_finales[:]: 
     try:
         print(i[:16], i[16:],"  ",opcode_reverso[str(i[16:])])
     except:
