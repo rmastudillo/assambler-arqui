@@ -952,11 +952,19 @@ for index, inst in enumerate(instrucciones_finales):
     if type(inst)== Instruction:
         posicion_inst[inst.inst] = index
         instrucciones_finales[index]  = '0'.rjust(36, '0')
-        print(instrucciones_finales[index])
 
 for index, inst in enumerate(instrucciones_finales):
-    print(inst)
-    breakpoint()
+    if not inst.isnumeric():
+        label = str(inst[:len(inst)-20])
+        resp =  inst[len(inst)-20:]
+        resp_2 = ''
+        try: 
+            resp_2 = f'{int(posicion_inst[label+":"]):016b}'
+        except:
+            print(posicion_inst)
+            raise KeyError("HAY UNA LABEL mal ingresada", inst)
+        resp = resp_2 + resp
+        instrucciones_finales[index] = resp
 
 
 
@@ -988,6 +996,12 @@ except Exception:
 print(" \033[92;1m~~~~~~~~~~~ DATA ~~~~~~~~~~~\033[0m ")
 for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
 print(" \033[92;1m~~~~~~~~~~~ CODE ~~~~~~~~~~~\033[0m ")
-for i in total_instrucciones: print(i[:16], i[16:])
+for i in instrucciones_finales[len(data)+1:]: 
+    try:
+        print(i[:16], i[16:])
+    except:
+        print(instrucciones_finales)
+        raise KeyError(i)
+
 print(" \033[92;1m~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m ")
 print('FIN'); print('😊')
