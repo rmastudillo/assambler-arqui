@@ -1,3 +1,5 @@
+from __future__ import barry_as_FLUFL
+from msilib.schema import Error
 from sys import argv
 from collections import defaultdict
 from iic2343 import Basys3
@@ -16,12 +18,13 @@ TOKEN_ARRAY_SEPARATOR = ','
 TOKEN_LABEL = ':'
 TOKEN_INPUTS_SEPARATOR = ','
 REGISTERS = ('A', 'B')
-CASOS_ESPECIALES = ('SUB B, Lit',
-                    'INC A', 'INC B', 'INC (Dir)', 'INC (B)',
+CASOS_ESPECIALES = ('SUB B, Lit','SHR (B), A',"ADD A, Ins","ADD B, Ins","OR A, Ins","OR B, Ins","MOV (A), Ins","MOV (B), Ins",
+                    "XOR A, Ins","XOR B, Ins","AND A, Ins","AND B, Ins",
+                    'INC A', 'INC B', 'INC (Dir)', 'INC (B)','SHL (B), A',"SUB A, Ins","SUB B, Ins","NOT (B), A",
                     'DEC A', 'RET', 'PUSH A', 'PUSH B',
                     'POP A', 'POP B','MOV (Dir), Lit',
-                    'MOV (B), Lit',
-                    'ADD B, (Dir)')
+                    'MOV (B), Lit',"XOR B, (Dir)","XOR B, (B)","CMP A, (Dir)","CMP A, (B)", "CMP A, Ins",
+                    'ADD B, (Dir)','SUB B, (Dir)', "ADD B, (B)", "SUB B, (B)","AND B, (Dir)","OR B, (Dir)","OR B, (B)")
 
 jumps = ("JMP",
          "JEQ", "JNE",
@@ -571,13 +574,13 @@ def codigo_de_maquina(instruccion,assambler_inst):
 
 
 for key in label_pairs.keys():
-    print(f"{key} {bin(int(label_pairs[key]))}")
+    print(f"{key} {bin(int(label_pairs[key]))} , AAA")
 
 
 for index, d in enumerate(machiny_stuff):
     resp, assembly_inst_ = codigo_de_maquina(d, d.inst)
-    print(resp[:16], ' ', resp[16:], ' ', assembly_inst_,
-          '|||', d.in_1, d.in_2)
+
+
     if assembly_inst_ in CASOS_ESPECIALES:
         if assembly_inst_ == "INC (Dir)":
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
@@ -592,10 +595,23 @@ for index, d in enumerate(machiny_stuff):
             total_instrucciones.append(add_a_dir)
             total_instrucciones.append(pop_a)
             total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "INC A":
+            add_a_lit = (20 - len(opcodes["ADD A, Lit"])) * '0' + opcodes["ADD A, Lit"]
+            add_a_lit = '1' + add_a_lit
+            add_a_lit = add_a_lit.rjust(36,'0')
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "DEC A":
+            sub_a_lit = (20 - len(opcodes["SUB A, Lit"])) * '0' + opcodes["SUB A, Lit"]
+            sub_a_lit = '1' + sub_a_lit
+            sub_a_lit = sub_a_lit.rjust(36,'0')
+            total_instrucciones.append(sub_a_lit)
+        elif assembly_inst_ == "INC B":
+            add_b_lit = (20 - len(opcodes["ADD B, Lit"])) * '0' + opcodes["ADD B, Lit"]
+            add_b_lit = '1' + add_b_lit
+            add_b_lit = add_b_lit.rjust(36,'0')
+            total_instrucciones.append(add_b_lit)
         elif assembly_inst_ == "SUB B, Lit":
-            resp_2 = opcodes["NOT B"].rjust(36, "0")
             total_instrucciones.append(resp)
-            total_instrucciones.append(resp_2)
         elif assembly_inst_ == "MOV (Dir), Lit":
             direccion = f'{int(label_pairs[d.in_1[1:-1]]):016b}'
             valor_ = f'{int(d.in_2):016b}'
@@ -633,8 +649,236 @@ for index, d in enumerate(machiny_stuff):
             total_instrucciones.append(move_b_dir_a)
             total_instrucciones.append(pop_a)
             total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "SUB B, (Dir)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            direccion =  f'{int(label_pairs[d.in_2[1:-1]]):016b}'
+            sub_a_dir = (20 - len(opcodes["SUB A, (Dir)"])) * '0' + opcodes["SUB A, (Dir)"]
+            sub_a_dir = direccion + sub_a_dir
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(sub_a_dir)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "ADD B, (B)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            add_a_dir_b = (36 - len(opcodes["ADD A, (B)"])) * '0' + opcodes["ADD A, (B)"]
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(add_a_dir_b)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "SUB B, (B)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            add_a_dir_b = (36 - len(opcodes["SUB A, (B)"])) * '0' + opcodes["SUB A, (B)"]
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(add_a_dir_b)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "ADD B, (Dir)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            add_a_dir = (20 - len(opcodes["ADD A, (Dir)"])) * '0' + opcodes["ADD A, (Dir)"]
+            add_a_dir = resp[:16] + add_a_dir
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(add_a_dir)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "AND B, (Dir)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            add_a_dir = (20 - len(opcodes["AND A, (Dir)"])) * '0' + opcodes["AND A, (Dir)"]
+            add_a_dir = resp[:16] + add_a_dir
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(add_a_dir)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "AND B, (B)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            add_a_dir_b = (36 - len(opcodes["AND A, (B)"])) * '0' + opcodes["AND A, (B)"]
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(add_a_dir_b)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "OR B, (B)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            add_a_dir_b = (36 - len(opcodes["OR A, (B)"])) * '0' + opcodes["OR A, (B)"]
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(add_a_dir_b)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "OR B, (Dir)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            add_a_dir = (20 - len(opcodes["OR A, (Dir)"])) * '0' + opcodes["OR A, (Dir)"]
+            add_a_dir = resp[:16] + add_a_dir
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(add_a_dir)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "XOR B, (Dir)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            add_a_dir = (20 - len(opcodes["XOR A, (Dir)"])) * '0' + opcodes["XOR A, (Dir)"]
+            add_a_dir = resp[:16] + add_a_dir
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(add_a_dir)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "XOR B, (B)":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            add_a_dir_b = (36 - len(opcodes["XOR A, (B)"])) * '0' + opcodes["XOR A, (B)"]
+            mov_b_a = (36 - len(opcodes["MOV B, A"])) * '0' + opcodes["MOV B, A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(add_a_dir_b)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "CMP A, (Dir)":
+            raise KeyError("no está la instruccion {}  implementado".format(assembly_inst_))
+        elif assembly_inst_ == "CMP A, (B)":
+            b_b = (36 - len(opcodes["MOV B, (B)"])) * '0' + opcodes["MOV B, (B)"]
+            a_b = (36 - len(opcodes["CMP A, B"])) * '0' + opcodes["CMP A, B"]
+            total_instrucciones.append(b_b)
+            total_instrucciones.append(a_b)
+        elif assembly_inst_ == "CMP A, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            cmp_a_lit = opcodes["CMP A, Ins"].rjust(20,'0')
+            cmp_a_lit = lit + cmp_a_lit
+            total_instrucciones.append(cmp_a_lit)
+        elif assembly_inst_ == "SHR (B), A":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            shfr_a = (36 - len(opcodes["SHR A"])) * '0' + opcodes["SHR A"]
+            movb_a = (36 - len(opcodes["MOV (B), A"])) * '0' + opcodes["MOV (B), A"]
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(shfr_a)
+            total_instrucciones.append(movb_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "ADD A, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["ADD A, Lit"])) * '0' + opcodes["ADD A, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "ADD B, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["ADD B, Lit"])) * '0' + opcodes["ADD B, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "OR A, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["OR A, Lit"])) * '0' + opcodes["OR A, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "OR B, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["OR B, Lit"])) * '0' + opcodes["OR B, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "XOR A, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["XOR A, Lit"])) * '0' + opcodes["XOR A, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "XOR B, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["XOR B, Lit"])) * '0' + opcodes["XOR B, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "AND A, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["AND A, Lit"])) * '0' + opcodes["AND A, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "AND B, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["AND B, Lit"])) * '0' + opcodes["AND B, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "SUB A, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["SUB A, Lit"])) * '0' + opcodes["SUB A, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "SUB B, Ins":
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            add_a_lit =  (20 - len(opcodes["SUB B, Lit"])) * '0' + opcodes["SUB B, Lit"]
+            add_a_lit = lit+add_a_lit
+            total_instrucciones.append(add_a_lit)
+        elif assembly_inst_ == "SHL (B), A":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            shfr_a = (36 - len(opcodes["SHL A"])) * '0' + opcodes["SHL A"]
+            movb_a = (36 - len(opcodes["MOV (B), A"])) * '0' + opcodes["MOV (B), A"]
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(shfr_a)
+            total_instrucciones.append(movb_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "NOT (B), A":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            shfr_a = (36 - len(opcodes["NOT A"])) * '0' + opcodes["NOT A"]
+            movb_a = (36 - len(opcodes["MOV (B), A"])) * '0' + opcodes["MOV (B), A"]
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(shfr_a)
+            total_instrucciones.append(movb_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+        elif assembly_inst_ == "MOV (B), Ins":
+            push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
+            pop_a = opcodes["POP A"].rjust(36, '0')
+            pop_a_2 = opcodes["POP A2"].rjust(36, '0')
+            lit = str(bin(int(label_pairs[d.in_2])))[2:].rjust(16,'0')
+            mov_a_lit =  (20 - len(opcodes["MOV A, Lit"])) * '0' + opcodes["MOV A, Lit"]
+            mov_a_lit = lit + mov_a_lit
+            mov_b_a =  opcodes["MOV (B), A"].rjust(36, '0')
+            total_instrucciones.append(push_a)
+            total_instrucciones.append(mov_a_lit)
+            total_instrucciones.append(mov_b_a)
+            total_instrucciones.append(pop_a)
+            total_instrucciones.append(pop_a_2)
+
+
     else:
         total_instrucciones.append(resp)
+    print(resp[:16], ' ', resp[16:], ' ', assembly_inst_,
+          '|||', d.in_1, d.in_2)
 
 
 def convert_str_num_to_int_base_ten(as_is_data_num: str or int) -> int:
@@ -696,7 +940,7 @@ def conver_hex(binario_string):
 
 try:
     rom_programmer = Basys3()
-    rom_programmer.begin(port_number=1)
+    rom_programmer.begin()
 except Exception:
     print("Algo pasó con la placa o no está conectada UwU")
 with open("ROM.txt", 'w') as f:
