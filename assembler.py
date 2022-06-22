@@ -580,6 +580,7 @@ for index, d in enumerate(machiny_stuff):
 
     if ':' in d.inst:
         resp = d
+        assembly_inst_= None
 
     else:
         resp, assembly_inst_ = codigo_de_maquina(d, d.inst)
