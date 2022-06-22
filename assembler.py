@@ -999,7 +999,7 @@ print(" \033[92;1m~~~~~~~~~~~ DATA ~~~~~~~~~~~\033[0m ")
 for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
 print(" \033[92;1m~~~~~~~~~~~ CODE ~~~~~~~~~~~\033[0m ")
 
-for i in instrucciones_finales[len(data)*2:]: 
+for i in instrucciones_finales[(len(data)*2)+1:]: 
     try:
         print(i[:16], i[16:],"  ",opcode_reverso[str(i[16:])])
     except:
