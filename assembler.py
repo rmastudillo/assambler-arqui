@@ -1,5 +1,3 @@
-from __future__ import barry_as_FLUFL
-from msilib.schema import Error
 from sys import argv
 from collections import defaultdict
 from iic2343 import Basys3
@@ -357,7 +355,7 @@ for unused_var_in_python in machiny_stuff:
 for line in machiny_stuff:
     if line.label:
         line.label = ''
-        line.inst = 'NOP'
+
 
 for line in data:
     if line.label:
@@ -578,9 +576,14 @@ for key in label_pairs.keys():
 
 
 for index, d in enumerate(machiny_stuff):
-    resp, assembly_inst_ = codigo_de_maquina(d, d.inst)
 
+    if ':' in d.inst:
+        resp = d
 
+    else:
+        resp, assembly_inst_ = codigo_de_maquina(d, d.inst)
+    if d.inst in jumps:
+        resp = str(d.in_1) + resp[16:]
     if assembly_inst_ in CASOS_ESPECIALES:
         if assembly_inst_ == "INC (Dir)":
             push_a = (36 - len(opcodes["PUSH A"])) * '0' + opcodes["PUSH A"]
@@ -877,8 +880,11 @@ for index, d in enumerate(machiny_stuff):
 
     else:
         total_instrucciones.append(resp)
-    print(resp[:16], ' ', resp[16:], ' ', assembly_inst_,
-          '|||', d.in_1, d.in_2)
+    try:
+        print(resp[:16], ' ', resp[16:], ' ', assembly_inst_,
+              '|||', d.in_1, d.in_2)
+    except:
+        print(resp.inst)
 
 
 def convert_str_num_to_int_base_ten(as_is_data_num: str or int) -> int:
@@ -937,6 +943,23 @@ def conver_hex(binario_string):
     # print(type(hex(int(binario_string, 2))), int(
     #   hex(int(binario_string, 2))), type(int(hex(int(binario_string, 2)))))
     return int(binario_string, 2)
+
+"""
+ACA SE ARREGLAN LOS JUMPS
+"""
+posicion_inst = defaultdict()
+for index, inst in enumerate(instrucciones_finales):
+    if type(inst)== Instruction:
+        posicion_inst[inst.inst] = index
+        instrucciones_finales[index]  = '0'.rjust(36, '0')
+        print(instrucciones_finales[index])
+
+for index, inst in enumerate(instrucciones_finales):
+    print(inst)
+    breakpoint()
+
+
+
 
 try:
     rom_programmer = Basys3()
