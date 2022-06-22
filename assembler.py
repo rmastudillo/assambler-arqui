@@ -43,7 +43,7 @@ input_file = str(argv[1])
 DARKCYAN_BOLD = '\033[1;36m'
 RED_BOLD = '\033[1;91m'
 NORMAL_TXT = '\033[0m'
-
+opcode_reverso = defaultdict()
 
 def use_bloody_red_color(text) -> str:
     # return f"{DARKCYAN_BOLD}{text}{NORMAL_TXT}"
@@ -60,6 +60,7 @@ def cargar_opcodes(ruta):
     for index_, row in datos.iterrows():
         if index_ >= 1 and row[1] != 0:
             opcodes_[row[1]] = row[2]
+            opcode_reverso[row[2]]= row[1]
 
     return opcodes_
 
@@ -996,9 +997,10 @@ except Exception:
 print(" \033[92;1m~~~~~~~~~~~ DATA ~~~~~~~~~~~\033[0m ")
 for i in convert_data_entries_to_inst(data): print(i[:16], i[16:])
 print(" \033[92;1m~~~~~~~~~~~ CODE ~~~~~~~~~~~\033[0m ")
-for i in instrucciones_finales[len(data)+1:]: 
+
+for i in instrucciones_finales[len(data)*2:]: 
     try:
-        print(i[:16], i[16:])
+        print(i[:16], i[16:],"  ",opcode_reverso[str(i[16:])])
     except:
         print(instrucciones_finales)
         raise KeyError(i)
